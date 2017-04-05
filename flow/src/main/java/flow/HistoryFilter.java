@@ -1,5 +1,5 @@
 package flow;
 
-interface HistoryFilter {
+public interface HistoryFilter {
   History filterRestoredHistory(History history);
 }
