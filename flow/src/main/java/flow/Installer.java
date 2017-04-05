@@ -32,6 +32,7 @@ public final class Installer {
   private KeyParceler parceler;
   private Object defaultKey;
   private Dispatcher dispatcher;
+  private HistoryFilter historyFilter;
 
   Installer(Context baseContext, Activity activity) {
     this.baseContext = baseContext;
@@ -50,6 +51,11 @@ public final class Installer {
 
   @NonNull public Installer defaultKey(@Nullable Object defaultKey) {
     this.defaultKey = defaultKey;
+    return this;
+  }
+
+  @NonNull public Installer historyFilter(@Nullable HistoryFilter historyFilter) {
+    this.historyFilter = historyFilter;
     return this;
   }
 
@@ -79,7 +85,7 @@ public final class Installer {
     final Application app = (Application) baseContext.getApplicationContext();
     final KeyManager keyManager = new KeyManager(contextFactories);
     InternalLifecycleIntegration.install(app, activity, parceler, defaultHistory, dispatcher,
-        keyManager);
+        keyManager, historyFilter);
     return new InternalContextWrapper(baseContext, activity);
   }
 }

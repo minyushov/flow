@@ -44,7 +44,7 @@ public final class InternalLifecycleIntegration extends Fragment {
 
   static void install(final Application app, final Activity activity,
       @Nullable final KeyParceler parceler, final History defaultHistory,
-      final Dispatcher dispatcher, final KeyManager keyManager) {
+      final Dispatcher dispatcher, final KeyManager keyManager, final HistoryFilter historyFilter) {
     app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
       @Override public void onActivityCreated(Activity a, Bundle savedInstanceState) {
         if (a == activity) {
@@ -57,6 +57,7 @@ public final class InternalLifecycleIntegration extends Fragment {
             fragment.defaultHistory = defaultHistory;
             fragment.parceler = parceler;
             fragment.keyManager = keyManager;
+            fragment.historyFilter = historyFilter;
           }
           // We always replace the dispatcher because it frequently references the Activity.
           fragment.dispatcher = dispatcher;
@@ -94,6 +95,7 @@ public final class InternalLifecycleIntegration extends Fragment {
   KeyManager keyManager;
   @Nullable KeyParceler parceler;
   History defaultHistory;
+  HistoryFilter historyFilter;
   Dispatcher dispatcher;
   Intent intent;
   private boolean dispatcherSet;
@@ -135,6 +137,9 @@ public final class InternalLifecycleIntegration extends Fragment {
         Bundle bundle = savedInstanceState.getParcelable(INTENT_KEY);
         load(bundle, parceler, builder, keyManager);
         savedHistory = builder.build();
+        if (historyFilter != null) {
+          savedHistory = historyFilter.filterRestoredHistory(savedHistory);
+        }
       }
       History history = selectHistory(intent, savedHistory, defaultHistory, parceler, keyManager);
       flow = new Flow(keyManager, history);
