@@ -1,13 +1,18 @@
-ext.deps = [
-    android_gradle_plugin      : 'com.android.tools.build:gradle:1.5.0',
-]
+buildscript {
+  ext {
+    androidMinSdkVersion = 14
+    androidCompileSdkVersion = 25
+    androidTargetSdkVersion = 25
+    androidBuildToolsVersion = "25.0.2"
+    androidSupportLibraryVersion = "25.3.1"
+  }
 
-ext.minSdkVersion = 14
-ext.compileSdkVersion = 23
-ext.buildToolsVersion = '23.0.1'
-
-task wrapper(type: Wrapper) {
-  gradleVersion = '2.10'
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:2.3.0'
+  }
 }
 
 allprojects {
