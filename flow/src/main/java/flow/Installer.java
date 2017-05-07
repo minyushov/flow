@@ -80,12 +80,12 @@ public final class Installer {
           .build();
     }
     final Object defState = defaultKey == null ? "Hello, World!" : defaultKey;
-
+    final HistoryFilter filter = historyFilter == null ? new NotPersistentHistoryFilter() : historyFilter;
     final History defaultHistory = History.single(defState);
     final Application app = (Application) baseContext.getApplicationContext();
     final KeyManager keyManager = new KeyManager(contextFactories);
     InternalLifecycleIntegration.install(app, activity, parceler, defaultHistory, dispatcher,
-        keyManager, historyFilter);
+        keyManager, filter);
     return new InternalContextWrapper(baseContext, activity);
   }
 }

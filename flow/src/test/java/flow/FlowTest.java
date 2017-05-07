@@ -17,8 +17,10 @@ package flow;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+
 import java.util.Arrays;
 import java.util.Iterator;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -70,7 +72,7 @@ public class FlowTest {
       TraversalCallback oldCallback = callback;
       callback = null;
       traversal = null;
-      oldCallback.onTraversalCompleted();;
+      oldCallback.onTraversalCompleted();
     }
 
     void assertIdle() {

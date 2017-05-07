@@ -22,6 +22,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,8 +39,17 @@ public final class InternalLifecycleIntegration extends Fragment {
       InternalLifecycleIntegration.class.getSimpleName() + "_state";
   static final String INTENT_KEY = InternalLifecycleIntegration.class.getSimpleName() + "_history";
 
-  static InternalLifecycleIntegration find(Activity activity) {
+  static @Nullable InternalLifecycleIntegration find(Activity activity) {
     return (InternalLifecycleIntegration) activity.getFragmentManager().findFragmentByTag(TAG);
+  }
+
+  static @NonNull InternalLifecycleIntegration require(Activity activity) {
+    Fragment fragmentByTag = find(activity);
+    if (fragmentByTag == null) {
+      throw new IllegalStateException("Flow services are not yet available. Do not make this call "
+          + "before receiving Activity#onPause().");
+    }
+    return (InternalLifecycleIntegration) fragmentByTag;
   }
 
   static void install(final Application app, final Activity activity,
@@ -61,6 +71,7 @@ public final class InternalLifecycleIntegration extends Fragment {
           }
           // We always replace the dispatcher because it frequently references the Activity.
           fragment.dispatcher = dispatcher;
+          fragment.intent = a.getIntent();
           if (newFragment) {
             activity.getFragmentManager() //
                 .beginTransaction() //
@@ -113,7 +124,7 @@ public final class InternalLifecycleIntegration extends Fragment {
       Object key = keys.next();
       parcelables.add(State.empty(key).toBundle(parceler));
     }
-    bundle.putParcelableArrayList("FLOW_STATE", parcelables);
+    bundle.putParcelableArrayList(PERSISTENCE_KEY, parcelables);
     intent.putExtra(INTENT_KEY, bundle);
   }
 
@@ -138,7 +149,7 @@ public final class InternalLifecycleIntegration extends Fragment {
         load(bundle, parceler, builder, keyManager);
         savedHistory = builder.build();
         if (historyFilter != null) {
-          savedHistory = historyFilter.filterRestoredHistory(savedHistory);
+          savedHistory = historyFilter.onRestoreHistory(savedHistory);
         }
       }
       History history = selectHistory(intent, savedHistory, defaultHistory, parceler, keyManager);
@@ -177,7 +188,7 @@ public final class InternalLifecycleIntegration extends Fragment {
     }
 
     Bundle bundle = new Bundle();
-    save(bundle, parceler, flow.getHistory(), keyManager);
+    save(bundle, parceler, historyFilter.onSaveHistory(flow.getHistory()), keyManager);
     if (!bundle.isEmpty()) {
       outState.putParcelable(INTENT_KEY, bundle);
     }
@@ -198,7 +209,8 @@ public final class InternalLifecycleIntegration extends Fragment {
     return defaultHistory;
   }
 
-  private static void save(Bundle bundle, KeyParceler parceler, History history, KeyManager keyManager) {
+  private static void save(Bundle bundle, KeyParceler parceler, History history,
+      KeyManager keyManager) {
     ArrayList<Parcelable> parcelables = new ArrayList<>(history.size());
     final Iterator<Object> keys = history.reverseIterator();
     while (keys.hasNext()) {
@@ -223,5 +235,4 @@ public final class InternalLifecycleIntegration extends Fragment {
       }
     }
   }
-
 }

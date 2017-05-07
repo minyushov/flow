@@ -38,10 +38,23 @@ public final class Flow {
     }
   };
 
+  /**
+   * Convenience overload of {@link #get(Context)}.
+   */
   @NonNull public static Flow get(@NonNull View view) {
     return get(view.getContext());
   }
 
+  /**
+   * Returns the Flow instance for the {@link Activity} that owns the given context.
+   * Note that it is not safe to call this method before the first call to that
+   * Activity's {@link Activity#onResume()} method in the current Android task. In practice
+   * this boils down to two rules:
+   * <ol>
+   *   <li>In views, do not access Flow before {@link View#onAttachedToWindow()} is called.
+   *   <li>In activities, do not access flow before {@link Activity#onResume()} is called.
+   * </ol>
+   */
   @NonNull public static Flow get(@NonNull Context context) {
     Flow flow = InternalContextWrapper.getFlow(context);
     if (null == flow) {
@@ -96,13 +109,14 @@ public final class Flow {
     //noinspection ConstantConditions
     checkArgument(intent != null, "intent may not be null");
     if (intent.hasExtra(InternalLifecycleIntegration.INTENT_KEY)) {
-      InternalLifecycleIntegration.find(activity).onNewIntent(intent);
+      InternalLifecycleIntegration.require(activity).onNewIntent(intent);
       return true;
     }
     return false;
   }
 
   private History history;
+  private HistoryFilter historyFilter = new NotPersistentHistoryFilter();
   private Dispatcher dispatcher;
   private PendingTraversal pendingTraversal;
   private List<Object> tearDownKeys = new ArrayList<>();
@@ -115,6 +129,10 @@ public final class Flow {
 
   @NonNull public History getHistory() {
     return history;
+  }
+
+  History getFilteredHistory() {
+    return historyFilter.onSaveHistory(getHistory());
   }
 
   /**
@@ -248,18 +266,39 @@ public final class Flow {
   }
 
   /**
-   * Go back one key.
+   * Go back one key. Typically called from {@link Activity#onBackPressed()}, with
+   * the return value determining whether or not to call super. E.g.
+   * <pre>
+   * public void onBackPressed() {
+   *   if (!Flow.get(this).goBack()) {
+   *     super.onBackPressed();
+   *   }
+   * }
+   * </pre>
    *
-   * @return false if going back is not possible or a traversal is in progress.
+   * @return false if going back is not possible.
    */
   @CheckResult public boolean goBack() {
     boolean canGoBack = history.size() > 1 || (pendingTraversal != null
         && pendingTraversal.state != TraversalState.FINISHED);
     if (!canGoBack) return false;
-    History.Builder builder = history.buildUpon();
-    builder.pop();
-    final History newHistory = builder.build();
-    setHistory(newHistory, Direction.BACKWARD);
+
+    move(new PendingTraversal() {
+      @Override void doExecute() {
+        if (history.size() <= 1) {
+          // The history shrank while this op was pending. It happens, let's
+          // no-op. See lengthy discussions:
+          // https://github.com/square/flow/issues/195
+          // https://github.com/square/flow/pull/197
+          return;
+        }
+
+        History.Builder builder = history.buildUpon();
+        builder.pop();
+        final History newHistory = builder.build();
+        dispatch(newHistory, Direction.BACKWARD);
+      }
+    });
     return true;
   }
 
@@ -303,11 +342,13 @@ public final class Flow {
   private enum TraversalState {
     /** {@link PendingTraversal#execute} has not been called. */
     ENQUEUED,
+
     /**
      * {@link PendingTraversal#execute} was called, waiting for {@link
      * PendingTraversal#onTraversalCompleted}.
      */
     DISPATCHED,
+
     /**
      * {@link PendingTraversal#onTraversalCompleted} was called.
      */

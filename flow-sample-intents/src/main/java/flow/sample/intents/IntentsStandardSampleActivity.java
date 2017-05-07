@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Square Inc.
+ * Copyright 2017 Square Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package flow;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package flow.sample.intents;
 
-/**
- * Applied to a state object, indicates that it should not be persisted with the history.
- * This behavior can be changed via {@link Installer#historyFilter}.
- */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface NotPersistent {
+import android.app.Activity;
+import android.content.Context;
+import flow.Flow;
+
+public class IntentsStandardSampleActivity extends Activity {
+
+  @Override protected void attachBaseContext(Context baseContext) {
+    baseContext = Flow.configure(baseContext, this).keyParceler(new StringParceler()).install();
+    super.attachBaseContext(baseContext);
+  }
+
+  @Override public void onBackPressed() {
+    if (!Flow.get(this).goBack()) {
+      super.onBackPressed();
+    }
+  }
 }

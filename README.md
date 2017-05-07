@@ -1,10 +1,10 @@
 # Flow
 
-_"Name-giving will be the foundation of our science."_ - Linnaeus
+_"Name-giving will be the foundation of our science."_ &mdash; Linnaeus
 
-_"The winds and waves are always on the side of the ablest navigators."_ - Gibbon
+_"The winds and waves are always on the side of the ablest navigators."_ &mdash; Gibbon
 
-_"Memory is the treasury and guardian of all things._" - Cicero
+_"Memory is the treasury and guardian of all things._" &mdash; Cicero
 
 **Flow gives names to your Activity's UI states, navigates between them, and remembers where it's been.**
 
@@ -24,7 +24,7 @@ Manage all types of UIs-- complex master-detail views, multiple layers, and wind
 Gradle:
 
 ```groovy
-compile 'com.squareup.flow:flow:1.0.0-alpha2'
+compile 'com.squareup.flow:flow:1.0.0-alpha3'
 ```
 
 Install Flow into your Activity:
@@ -112,7 +112,7 @@ You [supply the serialization][KeyParceler.java] for your keys, and Flow does th
 ## Sample projects
 
 * [Hello World](flow-sample-helloworld) - A starting point for integration.
-* [Basic Sample](flow-sample-basic)- Fully configured Flow.
+* [Basic Sample](flow-sample-basic) - Fully configured Flow.
 * [Tree Sample](flow-sample-tree) - Uses TreeKeys to define scopes and share state.
 * [MultiKey Sample](flow-sample-multikey) - Uses MultiKeys to represent screens with dialogs as discrete states.
 
