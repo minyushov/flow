@@ -127,8 +127,8 @@ public class FlowTest {
       @Override
       public void dispatch(@NonNull Traversal traversal, @NonNull TraversalCallback onComplete) {
         assertThat(firstHistory).hasSameSizeAs(flow.getHistory());
-        Iterator<Object> original = firstHistory.iterator();
-        for (Object o : flow.getHistory()) {
+        Iterator<Object> original = firstHistory.framesFromTop().iterator();
+        for (Object o : flow.getHistory().framesFromTop()) {
           assertThat(o).isEqualTo(original.next());
         }
         onComplete.onTraversalCompleted();
@@ -429,5 +429,41 @@ public class FlowTest {
     } catch (IllegalStateException ignored) {
       // That's good!
     }
+  }
+
+  @Test public void defaultHistoryFilter() {
+    History history =
+        History.emptyBuilder().pushAll(Arrays.<Object>asList(able, noPersist, charlie)).build();
+
+    Flow flow = new Flow(keyManager, history);
+    flow.setDispatcher(new FlowDispatcher());
+
+    List<Object> expected = History.emptyBuilder().pushAll(asList(able, charlie)).build().asList();
+    assertThat(flow.getFilteredHistory().asList()).isEqualTo(expected);
+  }
+
+  @Test public void customHistoryFilter() {
+    History history =
+        History.emptyBuilder().pushAll(Arrays.<Object>asList(able, noPersist, charlie)).build();
+
+    Flow flow = new Flow(keyManager, history);
+    flow.setDispatcher(new FlowDispatcher());
+    flow.setHistoryFilter(new HistoryFilter() {
+      @NonNull @Override public History scrubHistory(@NonNull History history) {
+        History.Builder builder = History.emptyBuilder();
+
+        for (Object key : history.framesFromBottom()) {
+          if (!key.equals(able)) {
+            builder.push(key);
+          }
+        }
+
+        return builder.build();
+      }
+    });
+
+    List<Object> expected =
+        History.emptyBuilder().pushAll(asList(noPersist, charlie)).build().asList();
+    assertThat(flow.getFilteredHistory().asList()).isEqualTo(expected);
   }
 }

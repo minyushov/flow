@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
   compileSdkVersion androidCompileSdkVersion
-  buildToolsVersion androidBuildToolsVersion
 
   defaultConfig {
     applicationId "flow.sample.intents"
@@ -26,17 +25,10 @@ android {
 }
 
 dependencies {
-  compile project(':flow')
-  compile "com.android.support:appcompat-v7:$androidSupportLibraryVersion"
-  compile "com.android.support:design:$androidSupportLibraryVersion"
-  androidTestCompile 'com.android.support.test:runner:0.5'
-  androidTestCompile 'com.android.support.test:rules:0.5'
-  androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-}
-
-//noinspection GroovyAssignabilityCheck
-configurations.all {
-  resolutionStrategy {
-    force "com.android.support:support-annotations:$androidSupportLibraryVersion"
-  }
+  implementation project(':flow')
+  implementation "com.android.support:appcompat-v7:$androidSupportLibraryVersion"
+  implementation "com.android.support:design:$androidSupportLibraryVersion"
+  androidTestImplementation "com.android.support.test:runner:$supportTestVersion"
+  androidTestImplementation "com.android.support.test:rules:$supportTestVersion"
+  androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
 }

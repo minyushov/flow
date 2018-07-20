@@ -1,7 +1,6 @@
 package flow;
 
 import android.support.annotation.NonNull;
-import java.util.Iterator;
 
 /**
  * Default implementation of {@link HistoryFilter}, enforces the contract
@@ -15,9 +14,7 @@ class NotPersistentHistoryFilter implements HistoryFilter {
   @NonNull @Override public History onSaveHistory(@NonNull History history) {
     History.Builder builder = History.emptyBuilder();
 
-    final Iterator<Object> keys = history.reverseIterator();
-    while (keys.hasNext()) {
-      Object key = keys.next();
+    for (Object key : history.framesFromBottom()) {
       if (!key.getClass().isAnnotationPresent(NotPersistent.class)) {
         builder.push(key);
       }

@@ -32,6 +32,10 @@ import static java.util.Collections.unmodifiableList;
 
 /**
  * Describes the history of a {@link Flow} at a specific point in time.
+ *
+ * <p><em>Note: use of this class as an {@link Iterable} is deprecated. Use {@link
+ * #framesFromTop()}
+ * and {@link #framesFromBottom()} instead.</em>
  */
 public final class History implements Iterable<Object> {
 
@@ -46,17 +50,35 @@ public final class History implements Iterable<Object> {
     return emptyBuilder().push(key).build();
   }
 
+  private static <T> Iterator<T> iterateFromBottom(List<Object> history) {
+    return new ReadStateIterator<>(history.iterator());
+  }
+
+  private static <T> Iterator<T> iterateFromTop(List<Object> history) {
+    return new ReadStateIterator<>(new ReverseIterator<>(history));
+  }
+
   private History(List<Object> history) {
     checkArgument(history != null && !history.isEmpty(), "History may not be empty");
     this.history = history;
   }
 
-  @NonNull public <T> Iterator<T> reverseIterator() {
-    return new ReadStateIterator<>(history.iterator());
+  @NonNull public <T> Iterable<T> framesFromBottom() {
+    return new HistoryIterable<>(history, true);
   }
 
-  @NonNull @Override public Iterator<Object> iterator() {
-    return new ReadStateIterator<>(new ReverseIterator<>(history));
+  @NonNull public <T> Iterable<T> framesFromTop() {
+    return new HistoryIterable<>(history, false);
+  }
+
+  /** @deprecated Use {@link #framesFromBottom()} instead. */
+  @Deprecated @NonNull public <T> Iterator<T> reverseIterator() {
+    return iterateFromBottom(history);
+  }
+
+  /** @deprecated Use {@link #framesFromTop()} instead. */
+  @Deprecated @NonNull @Override public Iterator<Object> iterator() {
+    return iterateFromTop(history);
   }
 
   public int size() {
@@ -186,11 +208,29 @@ public final class History implements Iterable<Object> {
     }
 
     @NonNull public History build() {
-      return new History(history);
+      return new History(new ArrayList<>(history));
     }
 
     @Override public String toString() {
       return Arrays.deepToString(history.toArray());
+    }
+  }
+
+  private static class HistoryIterable<T> implements Iterable<T> {
+    private final List<Object> history;
+    private final boolean fromBottom;
+
+    HistoryIterable(List<Object> history, boolean fromBottom) {
+      this.history = history;
+      this.fromBottom = fromBottom;
+    }
+
+    @NonNull @Override public Iterator<T> iterator() {
+      if (fromBottom) {
+        return iterateFromBottom(history);
+      } else {
+        return iterateFromTop(history);
+      }
     }
   }
 
@@ -214,6 +254,7 @@ public final class History implements Iterable<Object> {
     }
   }
 
+  /** Wraps an {@link Iterator} and delegates to it, but throws on {@link #remove()}. */
   private static class ReadStateIterator<T> implements Iterator<T> {
     private final Iterator<Object> iterator;
 
