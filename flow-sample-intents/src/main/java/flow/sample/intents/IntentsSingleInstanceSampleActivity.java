@@ -16,12 +16,13 @@
 
 package flow.sample.intents;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+
 import flow.Flow;
 
-public class IntentsSingleInstanceSampleActivity extends Activity {
+public class IntentsSingleInstanceSampleActivity extends AppCompatActivity {
 
   @Override protected void attachBaseContext(Context baseContext) {
     baseContext = Flow.configure(baseContext, this).keyParceler(new StringParceler()).install();

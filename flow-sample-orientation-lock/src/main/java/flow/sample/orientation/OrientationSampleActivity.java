@@ -16,12 +16,13 @@
 
 package flow.sample.orientation;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
 import flow.Flow;
 
-public class OrientationSampleActivity extends Activity {
+public class OrientationSampleActivity extends AppCompatActivity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.orientation_activity_frame);

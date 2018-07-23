@@ -16,12 +16,13 @@
 
 package flow.sample.basic;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
 import flow.Flow;
 
-public class BasicSampleActivity extends Activity {
+public class BasicSampleActivity extends AppCompatActivity {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);

@@ -16,11 +16,12 @@
 
 package flow.sample.helloworld;
 
-import android.app.Activity;
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
+
 import flow.Flow;
 
-public class HelloWorldActivity extends Activity {
+public class HelloWorldActivity extends AppCompatActivity {
 
   @Override protected void attachBaseContext(Context baseContext) {
     baseContext = Flow.configure(baseContext, this).install();
