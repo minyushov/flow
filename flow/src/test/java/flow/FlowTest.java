@@ -20,12 +20,14 @@ import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -40,10 +42,17 @@ public class FlowTest {
   static class Tres {
   }
 
+  @NotPersistent static class NoPersist extends TestKey {
+    NoPersist() {
+      super("NoPersist");
+    }
+  }
+
   final TestKey able = new TestKey("Able");
   final TestKey baker = new TestKey("Baker");
   final TestKey charlie = new TestKey("Charlie");
   final TestKey delta = new TestKey("Delta");
+  final TestKey noPersist = new NoPersist();
 
   @Mock KeyManager keyManager;
   History lastStack;
@@ -431,39 +440,13 @@ public class FlowTest {
     }
   }
 
-  @Test public void defaultHistoryFilter() {
+  @Test public void notPersistentHistoryFilter() {
     History history =
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, noPersist, charlie)).build();
 
-    Flow flow = new Flow(keyManager, history);
-    flow.setDispatcher(new FlowDispatcher());
+    HistoryFilter filter = new NotPersistentHistoryFilter();
 
     List<Object> expected = History.emptyBuilder().pushAll(asList(able, charlie)).build().asList();
-    assertThat(flow.getFilteredHistory().asList()).isEqualTo(expected);
-  }
-
-  @Test public void customHistoryFilter() {
-    History history =
-        History.emptyBuilder().pushAll(Arrays.<Object>asList(able, noPersist, charlie)).build();
-
-    Flow flow = new Flow(keyManager, history);
-    flow.setDispatcher(new FlowDispatcher());
-    flow.setHistoryFilter(new HistoryFilter() {
-      @NonNull @Override public History scrubHistory(@NonNull History history) {
-        History.Builder builder = History.emptyBuilder();
-
-        for (Object key : history.framesFromBottom()) {
-          if (!key.equals(able)) {
-            builder.push(key);
-          }
-        }
-
-        return builder.build();
-      }
-    });
-
-    List<Object> expected =
-        History.emptyBuilder().pushAll(asList(noPersist, charlie)).build().asList();
-    assertThat(flow.getFilteredHistory().asList()).isEqualTo(expected);
+    assertThat(filter.onSaveHistory(history).asList()).isEqualTo(expected);
   }
 }

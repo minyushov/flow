@@ -116,7 +116,6 @@ public final class Flow {
   }
 
   private History history;
-  private HistoryFilter historyFilter = new NotPersistentHistoryFilter();
   private Dispatcher dispatcher;
   private PendingTraversal pendingTraversal;
   private List<Object> tearDownKeys = new ArrayList<>();
@@ -129,10 +128,6 @@ public final class Flow {
 
   @NonNull public History getHistory() {
     return history;
-  }
-
-  History getFilteredHistory() {
-    return historyFilter.onSaveHistory(getHistory());
   }
 
   /**

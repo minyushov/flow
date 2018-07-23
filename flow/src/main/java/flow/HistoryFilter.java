@@ -7,9 +7,9 @@ import android.support.annotation.NonNull;
  * it is persisted, or after it is restored.
  */
 public interface HistoryFilter {
-	@NonNull
-	History onRestoreHistory(@NonNull History history);
+  @NonNull
+  History onRestoreHistory(@NonNull History history);
 
-	@NonNull
-	History onSaveHistory(@NonNull History history);
+  @NonNull
+  History onSaveHistory(@NonNull History history);
 }
