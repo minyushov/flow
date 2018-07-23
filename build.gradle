@@ -1,15 +1,16 @@
 buildscript {
   ext {
     androidMinSdkVersion = 14
-    androidCompileSdkVersion = 25
-    androidTargetSdkVersion = 25
-    androidSupportLibraryVersion = "25.3.1"
+    androidCompileSdkVersion = 28
+    androidTargetSdkVersion = 28
+    androidSupportLibraryVersion = "27.1.1"
 
-    espressoVersion = "3.0.1"
-    supportTestVersion = "1.0.1"
+    espressoVersion = "3.0.2"
+    supportTestVersion = "1.0.2"
     junitVersion = "4.12"
-    assertjVersion = "3.8.0"
-    mockitoVersion = "2.10.0"
+    assertjVersion = "3.10.0"
+    mockitoVersion = "2.19.1"
+    robolectricVersion = "3.8"
   }
 
   repositories {

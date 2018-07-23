@@ -15,8 +15,8 @@ dependencies {
   testImplementation "junit:junit:$junitVersion"
   testImplementation "org.assertj:assertj-core:$assertjVersion"
   testImplementation "org.mockito:mockito-core:$mockitoVersion"
-  testImplementation 'org.robolectric:robolectric:3.4.2'
-  testImplementation 'org.apache.maven:maven-ant-tasks:2.1.3'
+  testImplementation "org.robolectric:robolectric:$robolectricVersion"
+  testImplementation "org.apache.maven:maven-ant-tasks:2.1.3"
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
