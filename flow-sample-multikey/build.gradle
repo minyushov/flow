@@ -9,25 +9,15 @@ android {
     minSdkVersion androidMinSdkVersion
     targetSdkVersion androidTargetSdkVersion
 
-    versionName VERSION_NAME
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-  }
-
-  buildTypes {
-    release {
-      minifyEnabled false
-    }
-  }
-
-  packagingOptions {
-    exclude 'LICENSE.txt'
   }
 }
 
 dependencies {
   implementation project(':flow')
+
   implementation "com.android.support:appcompat-v7:$androidSupportLibraryVersion"
-  implementation "com.android.support:design:$androidSupportLibraryVersion"
+
   androidTestImplementation "com.android.support.test:runner:$supportTestVersion"
   androidTestImplementation "com.android.support.test:rules:$supportTestVersion"
   androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
