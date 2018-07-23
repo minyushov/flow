@@ -8,6 +8,10 @@ android {
     minSdkVersion androidMinSdkVersion
     targetSdkVersion androidTargetSdkVersion
   }
+
+  libraryVariants.all {
+    it.generateBuildConfig.enabled = false
+  }
 }
 
 dependencies {
