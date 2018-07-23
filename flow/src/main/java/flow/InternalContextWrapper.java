@@ -16,10 +16,10 @@
 
 package flow;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 
 final class InternalContextWrapper extends ContextWrapper {
   private static final String FLOW_SERVICE = "flow.InternalContextWrapper.FLOW_SERVICE";
@@ -39,11 +39,11 @@ final class InternalContextWrapper extends ContextWrapper {
     return service;
   }
 
-  private final Activity activity;
+  private final FragmentActivity activity;
   private Flow flow;
   private KeyManager keyManager;
 
-  InternalContextWrapper(Context baseContext, Activity activity) {
+  InternalContextWrapper(Context baseContext, FragmentActivity activity) {
     super(baseContext);
     this.activity = activity;
   }
