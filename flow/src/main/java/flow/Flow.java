@@ -318,6 +318,12 @@ public final class Flow {
         preserving.push(newEntry);
         break;
       }
+
+      if (newEntry instanceof NonPreservableKey) {
+      	preserving.push(newEntry);
+      	break;
+	  }
+
       Object oldEntry = oldIt.next();
       if (oldEntry.equals(newEntry)) {
         preserving.push(oldEntry);
