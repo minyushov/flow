@@ -16,26 +16,25 @@
 
 package flow;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public final class Installer {
 
   private final Context baseContext;
-  private final FragmentActivity activity;
+  private final Activity activity;
   private final List<ServicesFactory> contextFactories = new ArrayList<>();
   private KeyParceler parceler;
   private Object defaultKey;
   private Dispatcher dispatcher;
   private HistoryFilter historyFilter;
 
-  Installer(Context baseContext, FragmentActivity activity) {
+  Installer(Context baseContext, Activity activity) {
     this.baseContext = baseContext;
     this.activity = activity;
   }

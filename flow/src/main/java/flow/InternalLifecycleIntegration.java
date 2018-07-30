@@ -18,14 +18,12 @@ package flow;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-
 import java.util.ArrayList;
 
 import static flow.Preconditions.checkNotNull;
@@ -39,11 +37,11 @@ public final class InternalLifecycleIntegration extends Fragment {
       InternalLifecycleIntegration.class.getSimpleName() + "_state";
   static final String INTENT_KEY = InternalLifecycleIntegration.class.getSimpleName() + "_history";
 
-  static @Nullable InternalLifecycleIntegration find(FragmentActivity activity) {
-    return (InternalLifecycleIntegration) activity.getSupportFragmentManager().findFragmentByTag(TAG);
+  static @Nullable InternalLifecycleIntegration find(Activity activity) {
+    return (InternalLifecycleIntegration) activity.getFragmentManager().findFragmentByTag(TAG);
   }
 
-  static @NonNull InternalLifecycleIntegration require(FragmentActivity activity) {
+  static @NonNull InternalLifecycleIntegration require(Activity activity) {
     Fragment fragmentByTag = find(activity);
     if (fragmentByTag == null) {
       throw new IllegalStateException("Flow services are not yet available. Do not make this call "
@@ -52,7 +50,7 @@ public final class InternalLifecycleIntegration extends Fragment {
     return (InternalLifecycleIntegration) fragmentByTag;
   }
 
-  static void install(final Application app, final FragmentActivity activity,
+  static void install(final Application app, final Activity activity,
       @Nullable final KeyParceler parceler, final History defaultHistory,
       final Dispatcher dispatcher, final KeyManager keyManager, final HistoryFilter historyFilter) {
     app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
@@ -73,7 +71,7 @@ public final class InternalLifecycleIntegration extends Fragment {
           fragment.dispatcher = dispatcher;
           fragment.intent = a.getIntent();
           if (newFragment) {
-            activity.getSupportFragmentManager() //
+            activity.getFragmentManager() //
                 .beginTransaction() //
                 .add(fragment, TAG) //
                 .commit();
