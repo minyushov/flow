@@ -27,7 +27,7 @@ bintrayUpload {
   artifactId = "flow"
   repo = "android"
   groupId = "com.minyushov.android"
-  version = "1.0.0-alpha05"
+  version = "1.0.0-alpha06"
   vcsUrl = "https://github.com/minyushov/flow.git"
   license = "Apache-2.0"
   docs = false
