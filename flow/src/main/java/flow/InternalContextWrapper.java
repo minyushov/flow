@@ -19,7 +19,8 @@ package flow;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 final class InternalContextWrapper extends ContextWrapper {
   private static final String FLOW_SERVICE = "flow.InternalContextWrapper.FLOW_SERVICE";

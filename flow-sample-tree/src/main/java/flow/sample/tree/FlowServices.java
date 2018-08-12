@@ -16,7 +16,7 @@
 
 package flow.sample.tree;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import flow.Services;
 import flow.ServicesFactory;
 import flow.sample.tree.model.Contact;

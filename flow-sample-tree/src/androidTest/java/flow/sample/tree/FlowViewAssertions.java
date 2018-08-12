@@ -16,9 +16,10 @@
 
 package flow.sample.tree;
 
-import android.support.test.espresso.NoMatchingViewException;
-import android.support.test.espresso.ViewAssertion;
 import android.view.View;
+
+import androidx.test.espresso.NoMatchingViewException;
+import androidx.test.espresso.ViewAssertion;
 import flow.Flow;
 
 final class FlowViewAssertions {

@@ -1,9 +1,10 @@
 package flow.sample.multikey;
 
-import android.support.annotation.NonNull;
-import flow.MultiKey;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import flow.MultiKey;
 
 public final class DialogScreen implements MultiKey {
   final Object mainContent;

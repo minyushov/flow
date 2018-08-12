@@ -16,7 +16,7 @@
 
 package flow.sample.tree.ui.contacts.edit;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import flow.TreeKey;
 
 public final class EditNameScreen extends ContactKey implements TreeKey {

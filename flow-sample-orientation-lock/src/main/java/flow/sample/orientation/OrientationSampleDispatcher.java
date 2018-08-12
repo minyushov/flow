@@ -17,11 +17,12 @@
 package flow.sample.orientation;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
 import flow.Dispatcher;
 import flow.Traversal;
 import flow.TraversalCallback;
@@ -70,7 +71,7 @@ final class OrientationSampleDispatcher implements Dispatcher {
       // in portrait.
       hangingCallback = callback;
     } else {
-      ViewGroup frame = (ViewGroup) activity.findViewById(R.id.basic_activity_frame);
+      ViewGroup frame = activity.findViewById(R.id.basic_activity_frame);
       View destView = LayoutInflater.from(traversal.createContext(destScreen, activity)) //
           .inflate(destScreen.getLayoutId(), frame, false);
 

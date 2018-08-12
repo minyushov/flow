@@ -18,8 +18,8 @@ package flow.sample.orientation;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
+import androidx.appcompat.app.AppCompatActivity;
 import flow.Flow;
 
 public class OrientationSampleActivity extends AppCompatActivity {

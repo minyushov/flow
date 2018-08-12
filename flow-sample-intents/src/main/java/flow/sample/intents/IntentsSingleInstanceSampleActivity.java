@@ -18,8 +18,8 @@ package flow.sample.intents;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 
+import androidx.appcompat.app.AppCompatActivity;
 import flow.Flow;
 
 public class IntentsSingleInstanceSampleActivity extends AppCompatActivity {

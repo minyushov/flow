@@ -19,13 +19,15 @@ package flow;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.CheckResult;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.View;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import androidx.annotation.CheckResult;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import static flow.Preconditions.checkArgument;
 import static flow.Preconditions.checkNotNull;

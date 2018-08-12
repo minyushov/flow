@@ -33,7 +33,7 @@ public final class WelcomeView extends LinearLayout {
 
   @Override protected void onFinishInflate() {
     super.onFinishInflate();
-    EditText nameView = (EditText) findViewById(R.id.welcome_screen_name);
+    EditText nameView = findViewById(R.id.welcome_screen_name);
 
     nameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {

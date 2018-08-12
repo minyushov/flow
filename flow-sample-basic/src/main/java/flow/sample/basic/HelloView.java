@@ -35,7 +35,7 @@ public final class HelloView extends LinearLayout {
     HelloScreen screen = Flow.getKey(this);
     ((TextView) findViewById(R.id.hello_name)).setText("Hello " + screen.name);
 
-    final TextView counter = (TextView) findViewById(R.id.hello_counter);
+    final TextView counter = findViewById(R.id.hello_counter);
     findViewById(R.id.hello_increment).setOnClickListener(new OnClickListener() {
       @Override public void onClick(View v) {
         String text = counter.getText().toString();

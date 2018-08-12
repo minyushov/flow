@@ -18,7 +18,7 @@ package flow.sample.intents;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import flow.KeyParceler;
 
 public class StringParceler implements KeyParceler {

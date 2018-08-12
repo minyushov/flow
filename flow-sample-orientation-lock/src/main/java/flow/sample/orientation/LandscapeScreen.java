@@ -16,7 +16,7 @@
 
 package flow.sample.orientation;
 
-import android.support.annotation.LayoutRes;
+import androidx.annotation.LayoutRes;
 
 /**
  * Screen that requires landscape orientation.

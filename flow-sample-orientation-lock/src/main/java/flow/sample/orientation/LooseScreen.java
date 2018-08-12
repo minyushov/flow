@@ -16,7 +16,7 @@
 
 package flow.sample.orientation;
 
-import android.support.annotation.LayoutRes;
+import androidx.annotation.LayoutRes;
 
 /**
  * A screen that is willing to render in any orientation.

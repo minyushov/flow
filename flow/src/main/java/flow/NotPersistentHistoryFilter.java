@@ -1,6 +1,6 @@
 package flow;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Default implementation of {@link HistoryFilter}, enforces the contract

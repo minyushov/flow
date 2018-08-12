@@ -16,7 +16,7 @@
 
 package flow;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Represents an absolute path in the logical information tree of an app, from the root of the tree

@@ -17,7 +17,8 @@
 package flow.sample.basic;
 
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 import flow.KeyParceler;
 
 /**

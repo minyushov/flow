@@ -2,21 +2,21 @@ package flow.sample.intents;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.rule.ActivityTestRule;
-import flow.Flow;
-import flow.History;
-import flow.sample.intents.IntentsSingleInstanceSampleActivity;
-import flow.sample.intents.IntentsStandardSampleActivity;
-import flow.sample.intents.StringParceler;
-import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.pressBack;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import java.util.List;
+
+import androidx.test.rule.ActivityTestRule;
+import flow.Flow;
+import flow.History;
+
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.pressBack;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static java.util.Arrays.asList;
 
 /**

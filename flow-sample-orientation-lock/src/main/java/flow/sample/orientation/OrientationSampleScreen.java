@@ -1,6 +1,6 @@
 package flow.sample.orientation;
 
-import android.support.annotation.LayoutRes;
+import androidx.annotation.LayoutRes;
 
 abstract class OrientationSampleScreen {
   @LayoutRes abstract int getLayoutId();

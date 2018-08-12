@@ -9,16 +9,16 @@ android {
     minSdkVersion androidMinSdkVersion
     targetSdkVersion androidTargetSdkVersion
 
-    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }
 }
 
 dependencies {
   implementation project(':flow')
 
-  implementation "com.android.support:appcompat-v7:$androidSupportLibraryVersion"
+  implementation "androidx.appcompat:appcompat:$androidxVersion"
 
-  androidTestImplementation "com.android.support.test:runner:$supportTestVersion"
-  androidTestImplementation "com.android.support.test:rules:$supportTestVersion"
-  androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+  androidTestImplementation "androidx.test:runner:$androidxTestVersion"
+  androidTestImplementation "androidx.test:rules:$androidxTestVersion"
+  androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 }

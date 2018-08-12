@@ -16,7 +16,7 @@
 
 package flow.sample.tree.ui.contacts.list;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import flow.ClassKey;
 import flow.TreeKey;
 import flow.sample.tree.ui.contacts.ContactsUiKey;

@@ -16,24 +16,25 @@
 
 package flow.sample.tree;
 
-import android.support.test.espresso.action.ViewActions;
-import android.support.test.rule.ActivityTestRule;
-import flow.sample.tree.model.Contact;
-import flow.sample.tree.ui.welcome.WelcomeScreen;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static android.support.test.espresso.Espresso.onData;
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.Espresso.pressBack;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withParent;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.rule.ActivityTestRule;
+import flow.sample.tree.model.Contact;
+import flow.sample.tree.ui.welcome.WelcomeScreen;
+
+import static androidx.test.espresso.Espresso.onData;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static flow.sample.tree.FlowServices.CONTACTS_STORAGE;
 import static flow.sample.tree.FlowServices.CONTACT_EDITOR;
 import static flow.sample.tree.FlowViewAssertions.doesNotHaveFlowService;
