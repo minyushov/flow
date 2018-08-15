@@ -23,7 +23,9 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -118,6 +120,7 @@ public final class Flow {
   private History history;
   private Dispatcher dispatcher;
   private PendingTraversal pendingTraversal;
+  private HistoryCallback historyCallback;
   private List<Object> tearDownKeys = new ArrayList<>();
   private final KeyManager keyManager;
 
@@ -176,6 +179,10 @@ public final class Flow {
     // This mechanism protects against out of order calls to this method and setDispatcher
     // (e.g. if an outgoing activity is paused after an incoming one resumes).
     if (this.dispatcher == checkNotNull(dispatcher, "dispatcher")) this.dispatcher = null;
+  }
+
+  void setHistoryCallback(@NonNull HistoryCallback historyCallback) {
+    this.historyCallback = historyCallback;
   }
 
   /**
@@ -259,22 +266,19 @@ public final class Flow {
   }
 
   /**
-   * Go back one key. Typically called from {@link Activity#onBackPressed()}, with
-   * the return value determining whether or not to call super. E.g.
-   * <pre>
-   * public void onBackPressed() {
-   *   if (!Flow.get(this).goBack()) {
-   *     super.onBackPressed();
-   *   }
-   * }
-   * </pre>
-   *
-   * @return false if going back is not possible.
+   * Go back one key. Typically called from {@link Activity#onBackPressed()}.
+   * If there is no way to go back, {@link HistoryCallback#onHistoryCleared()} is called.
+   * Use {@link Installer#historyCallback(HistoryCallback)} to set custom history callback.
+   * When not set {@link Activity#finish()} is called.
    */
-  @CheckResult public boolean goBack() {
+  public void goBack() {
     boolean canGoBack = history.size() > 1 || (pendingTraversal != null
         && pendingTraversal.state != TraversalState.FINISHED);
-    if (!canGoBack) return false;
+
+    if (!canGoBack) {
+      historyCallback.onHistoryCleared();
+      return;
+    }
 
     move(new PendingTraversal() {
       @Override void doExecute() {
@@ -283,6 +287,10 @@ public final class Flow {
           // no-op. See lengthy discussions:
           // https://github.com/square/flow/issues/195
           // https://github.com/square/flow/pull/197
+          // https://github.com/square/flow/issues/264
+          if (pendingTraversal != null) {
+            pendingTraversal.clearHistory();
+          }
           return;
         }
 
@@ -292,7 +300,6 @@ public final class Flow {
         dispatch(newHistory, Direction.BACKWARD);
       }
     });
-    return true;
   }
 
   private void move(PendingTraversal pendingTraversal) {
@@ -319,9 +326,9 @@ public final class Flow {
       }
 
       if (newEntry instanceof NonPreservableKey) {
-      	preserving.push(newEntry);
-      	break;
-	  }
+        preserving.push(newEntry);
+        break;
+      }
 
       Object oldEntry = oldIt.next();
       if (oldEntry.equals(newEntry)) {
@@ -419,6 +426,19 @@ public final class Flow {
 
       state = TraversalState.DISPATCHED;
       doExecute();
+    }
+
+    final void clearHistory() {
+      Iterator<Object> it = tearDownKeys.iterator();
+      while (it.hasNext()) {
+        keyManager.tearDown(it.next());
+        it.remove();
+      }
+      keyManager.clearStatesExcept(Collections.emptyList());
+      next = null;
+      pendingTraversal = null;
+      state = TraversalState.FINISHED;
+      historyCallback.onHistoryCleared();
     }
 
     /**

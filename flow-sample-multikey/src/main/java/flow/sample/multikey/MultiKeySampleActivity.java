@@ -10,13 +10,15 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
+
+import java.util.Map;
+
 import flow.Direction;
 import flow.Flow;
 import flow.KeyChanger;
 import flow.KeyDispatcher;
 import flow.State;
 import flow.TraversalCallback;
-import java.util.Map;
 
 /**
  * Demonstrates MultiKeys, e.g. screens with dialogs.
@@ -31,9 +33,7 @@ public class MultiKeySampleActivity extends AppCompatActivity {
   }
 
   @Override public void onBackPressed() {
-    if (!getFlow().goBack()) {
-      super.onBackPressed();
-    }
+    getFlow().goBack();
   }
 
   private final class Changer implements KeyChanger {

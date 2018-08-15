@@ -51,8 +51,8 @@ public final class InternalLifecycleIntegration extends Fragment {
   }
 
   static void install(final Application app, final Activity activity,
-      @Nullable final KeyParceler parceler, final History defaultHistory,
-      final Dispatcher dispatcher, final KeyManager keyManager, final HistoryFilter historyFilter) {
+                      @Nullable final KeyParceler parceler, final History defaultHistory,
+                      final Dispatcher dispatcher, final KeyManager keyManager, final HistoryCallback historyCallback) {
     app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
       @Override public void onActivityCreated(Activity a, Bundle savedInstanceState) {
         if (a == activity) {
@@ -65,7 +65,7 @@ public final class InternalLifecycleIntegration extends Fragment {
             fragment.defaultHistory = defaultHistory;
             fragment.parceler = parceler;
             fragment.keyManager = keyManager;
-            fragment.historyFilter = historyFilter;
+            fragment.historyCallback = historyCallback;
           }
           // We always replace the dispatcher because it frequently references the Activity.
           fragment.dispatcher = dispatcher;
@@ -104,7 +104,7 @@ public final class InternalLifecycleIntegration extends Fragment {
   KeyManager keyManager;
   @Nullable KeyParceler parceler;
   History defaultHistory;
-  HistoryFilter historyFilter;
+  HistoryCallback historyCallback;
   Dispatcher dispatcher;
   Intent intent;
   private boolean dispatcherSet;
@@ -143,10 +143,7 @@ public final class InternalLifecycleIntegration extends Fragment {
         History.Builder builder = History.emptyBuilder();
         Bundle bundle = savedInstanceState.getParcelable(INTENT_KEY);
         load(bundle, parceler, builder, keyManager);
-        savedHistory = builder.build();
-        if (historyFilter != null) {
-          savedHistory = historyFilter.onRestoreHistory(savedHistory);
-        }
+        savedHistory = historyCallback.onRestoreHistory(builder.build());
       }
       History history = selectHistory(intent, savedHistory, defaultHistory, parceler, keyManager);
       flow = new Flow(keyManager, history);
@@ -154,6 +151,7 @@ public final class InternalLifecycleIntegration extends Fragment {
     } else {
       flow.setDispatcher(dispatcher, true);
     }
+    flow.setHistoryCallback(historyCallback);
     dispatcherSet = true;
   }
 
@@ -183,7 +181,7 @@ public final class InternalLifecycleIntegration extends Fragment {
     }
 
     Bundle bundle = new Bundle();
-    save(bundle, parceler, historyFilter.onSaveHistory(flow.getHistory()), keyManager);
+    save(bundle, parceler, historyCallback.onSaveHistory(flow.getHistory()), keyManager);
     if (!bundle.isEmpty()) {
       outState.putParcelable(INTENT_KEY, bundle);
     }

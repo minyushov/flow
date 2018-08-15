@@ -25,6 +25,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.Map;
+
 import flow.Direction;
 import flow.Flow;
 import flow.KeyChanger;
@@ -35,7 +38,6 @@ import flow.sample.tree.ui.contacts.edit.EditEmailScreen;
 import flow.sample.tree.ui.contacts.edit.EditNameScreen;
 import flow.sample.tree.ui.contacts.list.ListContactsScreen;
 import flow.sample.tree.ui.welcome.WelcomeScreen;
-import java.util.Map;
 
 public class TreeSampleActivity extends AppCompatActivity {
 
@@ -49,9 +51,7 @@ public class TreeSampleActivity extends AppCompatActivity {
   }
 
   @Override public void onBackPressed() {
-    if (!Flow.get(this).goBack()) {
-      super.onBackPressed();
-    }
+    Flow.get(this).goBack();
   }
 
   private final class Changer implements KeyChanger {

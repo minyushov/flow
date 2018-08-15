@@ -3,10 +3,10 @@ package flow;
 import android.support.annotation.NonNull;
 
 /**
- * Default implementation of {@link HistoryFilter}, enforces the contract
+ * Default implementation of {@link HistoryCallback}, enforces the contract
  * documented on {@link NotPersistent}.
  */
-class NotPersistentHistoryFilter implements HistoryFilter {
+class NotPersistentHistoryCallback implements HistoryCallback {
   @NonNull @Override public History onRestoreHistory(@NonNull History history) {
     return history;
   }

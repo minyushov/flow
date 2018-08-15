@@ -11,12 +11,17 @@ android {
 
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
   }
+
+  compileOptions {
+    sourceCompatibility javaVersion
+    targetCompatibility javaVersion
+  }
 }
 
 dependencies {
   implementation project(':flow')
 
-  implementation "com.android.support:appcompat-v7:$androidSupportLibraryVersion"
+  implementation "com.android.support:design:$androidSupportLibraryVersion"
 
   androidTestImplementation "com.android.support.test:runner:$supportTestVersion"
   androidTestImplementation "com.android.support.test:rules:$supportTestVersion"
