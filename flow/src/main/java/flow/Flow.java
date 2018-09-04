@@ -32,419 +32,472 @@ import java.util.List;
 import static flow.Preconditions.checkArgument;
 import static flow.Preconditions.checkNotNull;
 
-/** Holds the current truth, the history of screens, and exposes operations to change it. */
+/**
+ * Holds the current truth, the history of screens, and exposes operations to change it.
+ */
 public final class Flow {
-  static final Object ROOT_KEY = new Object() {
-    @Override public String toString() {
-      return Flow.class.getName() + ".ROOT_KEY";
-    }
-  };
+	static final Object ROOT_KEY = new Object() {
+		@Override
+		public String toString() {
+			return Flow.class.getName() + ".ROOT_KEY";
+		}
+	};
 
-  /**
-   * Convenience overload of {@link #get(Context)}.
-   */
-  @NonNull public static Flow get(@NonNull View view) {
-    return get(view.getContext());
-  }
+	/**
+	 * Convenience overload of {@link #get(Context)}.
+	 */
+	@NonNull
+	public static Flow get(@NonNull View view) {
+		return get(view.getContext());
+	}
 
-  /**
-   * Returns the Flow instance for the {@link Activity} that owns the given context.
-   * Note that it is not safe to call this method before the first call to that
-   * Activity's {@link Activity#onResume()} method in the current Android task. In practice
-   * this boils down to two rules:
-   * <ol>
-   * <li>In views, do not access Flow before {@link View#onAttachedToWindow()} is called.
-   * <li>In activities, do not access flow before {@link Activity#onResume()} is called.
-   * </ol>
-   */
-  @NonNull public static Flow get(@NonNull Context context) {
-    Flow flow = InternalContextWrapper.getFlow(context);
-    if (null == flow) {
-      throw new IllegalStateException("Context was not wrapped with flow. "
-          + "Make sure attachBaseContext was overridden in your main activity");
-    }
-    return flow;
-  }
+	/**
+	 * Returns the Flow instance for the {@link Activity} that owns the given context.
+	 * Note that it is not safe to call this method before the first call to that
+	 * Activity's {@link Activity#onResume()} method in the current Android task. In practice
+	 * this boils down to two rules:
+	 * <ol>
+	 * <li>In views, do not access Flow before {@link View#onAttachedToWindow()} is called.
+	 * <li>In activities, do not access flow before {@link Activity#onResume()} is called.
+	 * </ol>
+	 */
+	@NonNull
+	public static Flow get(@NonNull Context context) {
+		Flow flow = InternalContextWrapper.getFlow(context);
+		if (null == flow) {
+			throw new IllegalStateException("Context was not wrapped with flow. "
+					+ "Make sure attachBaseContext was overridden in your main activity");
+		}
+		return flow;
+	}
 
-  /** @return null if context has no Flow key embedded. */
-  @Nullable public static <T> T getKey(@NonNull Context context) {
-    final FlowContextWrapper wrapper = FlowContextWrapper.get(context);
-    if (wrapper == null) return null;
-    return wrapper.services.getKey();
-  }
+	/**
+	 * @return null if context has no Flow key embedded.
+	 */
+	@Nullable
+	public static <T> T getKey(@NonNull Context context) {
+		final FlowContextWrapper wrapper = FlowContextWrapper.get(context);
+		if (wrapper == null) {
+			return null;
+		}
+		return wrapper.services.getKey();
+	}
 
-  /** @return null if view's Context has no Flow key embedded. */
-  @Nullable public static <T> T getKey(@NonNull View view) {
-    return getKey(view.getContext());
-  }
+	/**
+	 * @return null if view's Context has no Flow key embedded.
+	 */
+	@Nullable
+	public static <T> T getKey(@NonNull View view) {
+		return getKey(view.getContext());
+	}
 
-  /** @return null if context does not contain the named service. */
-  @Nullable public static <T> T getService(@NonNull String serviceName, @NonNull Context context) {
-    final FlowContextWrapper wrapper = FlowContextWrapper.get(context);
-    if (wrapper == null) return null;
-    return wrapper.services.getService(serviceName);
-  }
+	/**
+	 * @return null if context does not contain the named service.
+	 */
+	@Nullable
+	public static <T> T getService(@NonNull String serviceName, @NonNull Context context) {
+		final FlowContextWrapper wrapper = FlowContextWrapper.get(context);
+		if (wrapper == null) {
+			return null;
+		}
+		return wrapper.services.getService(serviceName);
+	}
 
-  /** @return null if context does not contain the named service. */
-  @Nullable public static <T> T getService(@NonNull String serviceName, @NonNull View view) {
-    return getService(serviceName, view.getContext());
-  }
+	/**
+	 * @return null if context does not contain the named service.
+	 */
+	@Nullable
+	public static <T> T getService(@NonNull String serviceName, @NonNull View view) {
+		return getService(serviceName, view.getContext());
+	}
 
-  @NonNull
-  public static Installer configure(@NonNull Context baseContext, @NonNull Activity activity) {
-    return new Installer(baseContext, activity);
-  }
+	@Nullable
+	public static Object getModel(@NonNull Object user, @NonNull Context context) {
+		return Flow.get(context).modelManager.getModel(user);
+	}
 
-  /** Adds a history as an extra to an Intent. */
-  public static void addHistory(@NonNull Intent intent, @NonNull History history,
-      @NonNull KeyParceler parceler) {
-    InternalLifecycleIntegration.addHistoryToIntent(intent, history, parceler);
-  }
+	@NonNull
+	public static Installer configure(@NonNull Context baseContext, @NonNull Activity activity) {
+		return new Installer(baseContext, activity);
+	}
 
-  /**
-   * Handles an Intent carrying a History extra.
-   *
-   * @return true if the Intent contains a History and it was handled.
-   */
-  @CheckResult public static boolean onNewIntent(@NonNull Intent intent,
-      @NonNull Activity activity) {
-    //noinspection ConstantConditions
-    checkArgument(intent != null, "intent may not be null");
-    if (intent.hasExtra(InternalLifecycleIntegration.INTENT_KEY)) {
-      InternalLifecycleIntegration.require(activity).onNewIntent(intent);
-      return true;
-    }
-    return false;
-  }
+	/**
+	 * Adds a history as an extra to an Intent.
+	 */
+	public static void addHistory(@NonNull Intent intent, @NonNull History history,
+								  @NonNull KeyParceler parceler) {
+		InternalLifecycleIntegration.addHistoryToIntent(intent, history, parceler);
+	}
 
-  private History history;
-  private Dispatcher dispatcher;
-  private PendingTraversal pendingTraversal;
-  private HistoryCallback historyCallback;
-  private List<Object> tearDownKeys = new ArrayList<>();
-  private final KeyManager keyManager;
+	/**
+	 * Handles an Intent carrying a History extra.
+	 *
+	 * @return true if the Intent contains a History and it was handled.
+	 */
+	@CheckResult
+	public static boolean onNewIntent(@NonNull Intent intent,
+									  @NonNull Activity activity) {
+		//noinspection ConstantConditions
+		checkArgument(intent != null, "intent may not be null");
+		if (intent.hasExtra(InternalLifecycleIntegration.INTENT_KEY)) {
+			InternalLifecycleIntegration.require(activity).onNewIntent(intent);
+			return true;
+		}
+		return false;
+	}
 
-  Flow(KeyManager keyManager, History history) {
-    this.keyManager = keyManager;
-    this.history = history;
-  }
+	private History history;
+	private Dispatcher dispatcher;
+	private PendingTraversal pendingTraversal;
+	private HistoryCallback historyCallback;
+	private List<Object> tearDownKeys = new ArrayList<>();
+	private final KeyManager keyManager;
+	private final FlowModelManager modelManager;
 
-  @NonNull public History getHistory() {
-    return history;
-  }
+	Flow(KeyManager keyManager, FlowModelManager modelManager, History history) {
+		this.keyManager = keyManager;
+		this.modelManager = modelManager;
+		this.history = history;
+	}
 
-  /**
-   * Set the dispatcher, may receive an immediate call to {@link Dispatcher#dispatch}. If a {@link
-   * Traversal Traversal} is currently in progress with a previous Dispatcher, that Traversal will
-   * not be affected.
-   */
-  public void setDispatcher(@NonNull Dispatcher dispatcher) {
-    setDispatcher(dispatcher, false);
-  }
+	@NonNull
+	public History getHistory() {
+		return history;
+	}
 
-  void setDispatcher(@NonNull Dispatcher dispatcher, final boolean restore) {
-    this.dispatcher = checkNotNull(dispatcher, "dispatcher");
+	/**
+	 * Set the dispatcher, may receive an immediate call to {@link Dispatcher#dispatch}. If a {@link
+	 * Traversal Traversal} is currently in progress with a previous Dispatcher, that Traversal will
+	 * not be affected.
+	 */
+	public void setDispatcher(@NonNull Dispatcher dispatcher) {
+		setDispatcher(dispatcher, false);
+	}
 
-    if (pendingTraversal == null || //
-        (pendingTraversal.state == TraversalState.DISPATCHED && pendingTraversal.next == null)) {
-      // Nothing is happening;
-      // OR, there is an outstanding callback and nothing will happen after it;
-      // So enqueue a bootstrap traversal.
-      move(new PendingTraversal() {
-        @Override void doExecute() {
-          bootstrap(history, restore);
-        }
-      });
-      return;
-    }
+	void setDispatcher(@NonNull Dispatcher dispatcher, final boolean restore) {
+		this.dispatcher = checkNotNull(dispatcher, "dispatcher");
 
-    if (pendingTraversal.state == TraversalState.ENQUEUED) {
-      // A traversal was enqueued while we had no dispatcher, run it now.
-      pendingTraversal.execute();
-      return;
-    }
+		if (pendingTraversal == null || //
+				(pendingTraversal.state == TraversalState.DISPATCHED && pendingTraversal.next == null)) {
+			// Nothing is happening;
+			// OR, there is an outstanding callback and nothing will happen after it;
+			// So enqueue a bootstrap traversal.
+			move(new PendingTraversal() {
+				@Override
+				void doExecute() {
+					bootstrap(history, restore);
+				}
+			});
+			return;
+		}
 
-    if (pendingTraversal.state != TraversalState.DISPATCHED) {
-      throw new AssertionError("Hanging traversal in unexpected state " + pendingTraversal.state);
-    }
-  }
+		if (pendingTraversal.state == TraversalState.ENQUEUED) {
+			// A traversal was enqueued while we had no dispatcher, run it now.
+			pendingTraversal.execute();
+			return;
+		}
 
-  /**
-   * Remove the dispatcher. A noop if the given dispatcher is not the current one.
-   * <p>
-   * No further {@link Traversal Traversals}, including Traversals currently enqueued, will execute
-   * until a new dispatcher is set.
-   */
-  public void removeDispatcher(@NonNull Dispatcher dispatcher) {
-    // This mechanism protects against out of order calls to this method and setDispatcher
-    // (e.g. if an outgoing activity is paused after an incoming one resumes).
-    if (this.dispatcher == checkNotNull(dispatcher, "dispatcher")) this.dispatcher = null;
-  }
+		if (pendingTraversal.state != TraversalState.DISPATCHED) {
+			throw new AssertionError("Hanging traversal in unexpected state " + pendingTraversal.state);
+		}
+	}
 
-  void setHistoryCallback(@NonNull HistoryCallback historyCallback) {
-    this.historyCallback = historyCallback;
-  }
+	/**
+	 * Remove the dispatcher. A noop if the given dispatcher is not the current one.
+	 * <p>
+	 * No further {@link Traversal Traversals}, including Traversals currently enqueued, will execute
+	 * until a new dispatcher is set.
+	 */
+	public void removeDispatcher(@NonNull Dispatcher dispatcher) {
+		// This mechanism protects against out of order calls to this method and setDispatcher
+		// (e.g. if an outgoing activity is paused after an incoming one resumes).
+		if (this.dispatcher == checkNotNull(dispatcher, "dispatcher")) {
+			this.dispatcher = null;
+		}
+	}
 
-  /**
-   * Replaces the history with the one given and dispatches in the given direction.
-   */
-  public void setHistory(@NonNull final History history, @NonNull final Direction direction) {
-    move(new PendingTraversal() {
-      @Override void doExecute() {
-        dispatch(preserveEquivalentPrefix(getHistory(), history), direction);
-      }
-    });
-  }
+	void setHistoryCallback(@NonNull HistoryCallback historyCallback) {
+		this.historyCallback = historyCallback;
+	}
 
-  /**
-   * Replaces the history with the given key and dispatches in the given direction.
-   */
-  public void replaceHistory(@NonNull final Object key, @NonNull final Direction direction) {
-    setHistory(getHistory().buildUpon().clear().push(key).build(), direction);
-  }
+	/**
+	 * Replaces the history with the one given and dispatches in the given direction.
+	 */
+	public void setHistory(@NonNull final History history, @NonNull final Direction direction) {
+		move(new PendingTraversal() {
+			@Override
+			void doExecute() {
+				dispatch(preserveEquivalentPrefix(getHistory(), history), direction);
+			}
+		});
+	}
 
-  /**
-   * Replaces the top key of the history with the given key and dispatches in the given direction.
-   */
-  public void replaceTop(@NonNull final Object key, @NonNull final Direction direction) {
-    setHistory(getHistory().buildUpon().pop(1).push(key).build(), direction);
-  }
+	/**
+	 * Replaces the history with the given key and dispatches in the given direction.
+	 */
+	public void replaceHistory(@NonNull final Object key, @NonNull final Direction direction) {
+		setHistory(getHistory().buildUpon().clear().push(key).build(), direction);
+	}
 
-  /**
-   * Updates the history such that the given key is at the top and dispatches the updated
-   * history.
-   *
-   * If newTopKey is already at the top of the history, the history will be unchanged, but it will
-   * be dispatched with direction {@link Direction#REPLACE}.
-   *
-   * If newTopKey is already on the history but not at the top, the stack will pop until newTopKey
-   * is at the top, and the dispatch direction will be {@link Direction#BACKWARD}.
-   *
-   * If newTopKey is not already on the history, it will be pushed and the dispatch direction will
-   * be {@link Direction#FORWARD}.
-   *
-   * Objects' equality is always checked using {@link Object#equals(Object)}.
-   */
-  public void set(@NonNull final Object newTopKey) {
-    move(new PendingTraversal() {
-      @Override void doExecute() {
-        if (newTopKey.equals(history.top())) {
-          dispatch(history, Direction.REPLACE);
-          return;
-        }
+	/**
+	 * Replaces the top key of the history with the given key and dispatches in the given direction.
+	 */
+	public void replaceTop(@NonNull final Object key, @NonNull final Direction direction) {
+		setHistory(getHistory().buildUpon().pop(1).push(key).build(), direction);
+	}
 
-        History.Builder builder = history.buildUpon();
-        int count = 0;
-        // Search backward to see if we already have newTop on the stack
-        Object preservedInstance = null;
-        for (Object entry : history.framesFromBottom()) {
-          // If we find newTop on the stack, pop back to it.
-          if (entry.equals(newTopKey)) {
-            for (int i = 0; i < history.size() - count; i++) {
-              preservedInstance = builder.pop();
-            }
-            break;
-          } else {
-            count++;
-          }
-        }
+	/**
+	 * Updates the history such that the given key is at the top and dispatches the updated
+	 * history.
+	 * <p>
+	 * If newTopKey is already at the top of the history, the history will be unchanged, but it will
+	 * be dispatched with direction {@link Direction#REPLACE}.
+	 * <p>
+	 * If newTopKey is already on the history but not at the top, the stack will pop until newTopKey
+	 * is at the top, and the dispatch direction will be {@link Direction#BACKWARD}.
+	 * <p>
+	 * If newTopKey is not already on the history, it will be pushed and the dispatch direction will
+	 * be {@link Direction#FORWARD}.
+	 * <p>
+	 * Objects' equality is always checked using {@link Object#equals(Object)}.
+	 */
+	public void set(@NonNull final Object newTopKey) {
+		move(new PendingTraversal() {
+			@Override
+			void doExecute() {
+				if (newTopKey.equals(history.top())) {
+					dispatch(history, Direction.REPLACE);
+					return;
+				}
 
-        History newHistory;
-        if (preservedInstance != null) {
-          // newTop was on the history. Put the preserved instance back on and dispatch.
-          builder.push(preservedInstance);
-          newHistory = builder.build();
-          dispatch(newHistory, Direction.BACKWARD);
-        } else {
-          // newTop was not on the history. Push it on and dispatch.
-          builder.push(newTopKey);
-          newHistory = builder.build();
-          dispatch(newHistory, Direction.FORWARD);
-        }
-      }
-    });
-  }
+				History.Builder builder = history.buildUpon();
+				int count = 0;
+				// Search backward to see if we already have newTop on the stack
+				Object preservedInstance = null;
+				for (Object entry : history.framesFromBottom()) {
+					// If we find newTop on the stack, pop back to it.
+					if (entry.equals(newTopKey)) {
+						for (int i = 0; i < history.size() - count; i++) {
+							preservedInstance = builder.pop();
+						}
+						break;
+					} else {
+						count++;
+					}
+				}
 
-  /**
-   * Go back one key. Typically called from {@link Activity#onBackPressed()}.
-   * If there is no way to go back, {@link HistoryCallback#onHistoryCleared()} is called.
-   * Use {@link Installer#historyCallback(HistoryCallback)} to set custom history callback.
-   * When not set {@link Activity#finish()} is called.
-   */
-  public void goBack() {
-    boolean canGoBack = history.size() > 1 || (pendingTraversal != null
-        && pendingTraversal.state != TraversalState.FINISHED);
+				History newHistory;
+				if (preservedInstance != null) {
+					// newTop was on the history. Put the preserved instance back on and dispatch.
+					builder.push(preservedInstance);
+					newHistory = builder.build();
+					dispatch(newHistory, Direction.BACKWARD);
+				} else {
+					// newTop was not on the history. Push it on and dispatch.
+					builder.push(newTopKey);
+					newHistory = builder.build();
+					dispatch(newHistory, Direction.FORWARD);
+				}
+			}
+		});
+	}
 
-    if (!canGoBack) {
-      historyCallback.onHistoryCleared();
-      return;
-    }
+	/**
+	 * Go back one key. Typically called from {@link Activity#onBackPressed()}.
+	 * If there is no way to go back, {@link HistoryCallback#onHistoryCleared()} is called.
+	 * Use {@link Installer#historyCallback(HistoryCallback)} to set custom history callback.
+	 * When not set {@link Activity#finish()} is called.
+	 */
+	public void goBack() {
+		boolean canGoBack = history.size() > 1 || (pendingTraversal != null
+				&& pendingTraversal.state != TraversalState.FINISHED);
 
-    move(new PendingTraversal() {
-      @Override void doExecute() {
-        if (history.size() <= 1) {
-          // The history shrank while this op was pending. It happens, let's
-          // no-op. See lengthy discussions:
-          // https://github.com/square/flow/issues/195
-          // https://github.com/square/flow/pull/197
-          // https://github.com/square/flow/issues/264
-          if (pendingTraversal != null) {
-            pendingTraversal.clearHistory();
-          }
-          return;
-        }
+		if (!canGoBack) {
+			historyCallback.onHistoryCleared();
+			return;
+		}
 
-        History.Builder builder = history.buildUpon();
-        builder.pop();
-        final History newHistory = builder.build();
-        dispatch(newHistory, Direction.BACKWARD);
-      }
-    });
-  }
+		move(new PendingTraversal() {
+			@Override
+			void doExecute() {
+				if (history.size() <= 1) {
+					// The history shrank while this op was pending. It happens, let's
+					// no-op. See lengthy discussions:
+					// https://github.com/square/flow/issues/195
+					// https://github.com/square/flow/pull/197
+					// https://github.com/square/flow/issues/264
+					if (pendingTraversal != null) {
+						pendingTraversal.clearHistory();
+					}
+					return;
+				}
 
-  private void move(PendingTraversal pendingTraversal) {
-    if (this.pendingTraversal == null) {
-      this.pendingTraversal = pendingTraversal;
-      // If there is no dispatcher wait until one shows up before executing.
-      if (dispatcher != null) pendingTraversal.execute();
-    } else {
-      this.pendingTraversal.enqueue(pendingTraversal);
-    }
-  }
+				History.Builder builder = history.buildUpon();
+				builder.pop();
+				final History newHistory = builder.build();
+				dispatch(newHistory, Direction.BACKWARD);
+			}
+		});
+	}
 
-  private static History preserveEquivalentPrefix(History current, History proposed) {
-    Iterator<Object> oldIt = current.framesFromBottom().iterator();
-    Iterator<Object> newIt = proposed.framesFromBottom().iterator();
+	private void move(PendingTraversal pendingTraversal) {
+		if (this.pendingTraversal == null) {
+			this.pendingTraversal = pendingTraversal;
+			// If there is no dispatcher wait until one shows up before executing.
+			if (dispatcher != null) {
+				pendingTraversal.execute();
+			}
+		} else {
+			this.pendingTraversal.enqueue(pendingTraversal);
+		}
+	}
 
-    History.Builder preserving = current.buildUpon().clear();
+	private static History preserveEquivalentPrefix(History current, History proposed) {
+		Iterator<Object> oldIt = current.framesFromBottom().iterator();
+		Iterator<Object> newIt = proposed.framesFromBottom().iterator();
 
-    while (newIt.hasNext()) {
-      Object newEntry = newIt.next();
-      if (!oldIt.hasNext()) {
-        preserving.push(newEntry);
-        break;
-      }
+		History.Builder preserving = current.buildUpon().clear();
 
-      if (newEntry instanceof NonPreservableKey) {
-        preserving.push(newEntry);
-        break;
-      }
+		while (newIt.hasNext()) {
+			Object newEntry = newIt.next();
+			if (!oldIt.hasNext()) {
+				preserving.push(newEntry);
+				break;
+			}
 
-      Object oldEntry = oldIt.next();
-      if (oldEntry.equals(newEntry)) {
-        preserving.push(oldEntry);
-      } else {
-        preserving.push(newEntry);
-        break;
-      }
-    }
+			if (newEntry instanceof NonPreservableKey) {
+				preserving.push(newEntry);
+				break;
+			}
 
-    while (newIt.hasNext()) {
-      preserving.push(newIt.next());
-    }
-    return preserving.build();
-  }
+			Object oldEntry = oldIt.next();
+			if (oldEntry.equals(newEntry)) {
+				preserving.push(oldEntry);
+			} else {
+				preserving.push(newEntry);
+				break;
+			}
+		}
 
-  private enum TraversalState {
-    /** {@link PendingTraversal#execute} has not been called. */
-    ENQUEUED,
+		while (newIt.hasNext()) {
+			preserving.push(newIt.next());
+		}
+		return preserving.build();
+	}
 
-    /**
-     * {@link PendingTraversal#execute} was called, waiting for {@link
-     * PendingTraversal#onTraversalCompleted}.
-     */
-    DISPATCHED,
+	private enum TraversalState {
+		/**
+		 * {@link PendingTraversal#execute} has not been called.
+		 */
+		ENQUEUED,
 
-    /**
-     * {@link PendingTraversal#onTraversalCompleted} was called.
-     */
-    FINISHED
-  }
+		/**
+		 * {@link PendingTraversal#execute} was called, waiting for {@link
+		 * PendingTraversal#onTraversalCompleted}.
+		 */
+		DISPATCHED,
 
-  private abstract class PendingTraversal implements TraversalCallback {
+		/**
+		 * {@link PendingTraversal#onTraversalCompleted} was called.
+		 */
+		FINISHED
+	}
 
-    TraversalState state = TraversalState.ENQUEUED;
-    PendingTraversal next;
-    History nextHistory;
+	private abstract class PendingTraversal implements TraversalCallback {
 
-    void enqueue(PendingTraversal pendingTraversal) {
-      if (this.next == null) {
-        this.next = pendingTraversal;
-      } else {
-        this.next.enqueue(pendingTraversal);
-      }
-    }
+		TraversalState state = TraversalState.ENQUEUED;
+		PendingTraversal next;
+		History nextHistory;
 
-    @Override public void onTraversalCompleted() {
-      if (state != TraversalState.DISPATCHED) {
-        throw new IllegalStateException(
-            state == TraversalState.FINISHED ? "onComplete already called for this transition"
-                : "transition not yet dispatched!");
-      }
-      // Is not set by noop and bootstrap transitions.
-      if (nextHistory != null) {
-        tearDownKeys.add(history.top());
-        history = nextHistory;
-      }
-      state = TraversalState.FINISHED;
-      pendingTraversal = next;
+		void enqueue(PendingTraversal pendingTraversal) {
+			if (this.next == null) {
+				this.next = pendingTraversal;
+			} else {
+				this.next.enqueue(pendingTraversal);
+			}
+		}
 
-      if (pendingTraversal == null) {
-        final Iterator<Object> it = tearDownKeys.iterator();
-        while (it.hasNext()) {
-          keyManager.tearDown(it.next());
-          it.remove();
-        }
-        keyManager.clearStatesExcept(history.asList());
-      } else if (dispatcher != null) {
-        pendingTraversal.execute();
-      }
-    }
+		@Override
+		public void onTraversalCompleted() {
+			if (state != TraversalState.DISPATCHED) {
+				throw new IllegalStateException(
+						state == TraversalState.FINISHED ? "onComplete already called for this transition"
+								: "transition not yet dispatched!");
+			}
+			// Is not set by noop and bootstrap transitions.
+			if (nextHistory != null) {
+				tearDownKeys.add(history.top());
+				history = nextHistory;
+			}
+			state = TraversalState.FINISHED;
+			pendingTraversal = next;
 
-    void bootstrap(History history, boolean restore) {
-      if (dispatcher == null) {
-        throw new AssertionError("Bad doExecute method allowed dispatcher to be cleared");
-      }
-      if (!restore) {
-        keyManager.setUp(history.top());
-      }
-      dispatcher.dispatch(new Traversal(null, history, Direction.REPLACE, keyManager), this);
-    }
+			if (pendingTraversal == null) {
+				final Iterator<Object> it = tearDownKeys.iterator();
+				while (it.hasNext()) {
+					Object next = it.next();
+					keyManager.tearDown(next);
+					modelManager.tearDown(next);
+					it.remove();
+				}
+				keyManager.clearStatesExcept(history.asList());
+			} else if (dispatcher != null) {
+				pendingTraversal.execute();
+			}
+		}
 
-    void dispatch(History nextHistory, Direction direction) {
-      this.nextHistory = checkNotNull(nextHistory, "nextHistory");
-      if (dispatcher == null) {
-        throw new AssertionError("Bad doExecute method allowed dispatcher to be cleared");
-      }
-      keyManager.setUp(nextHistory.top());
-      dispatcher.dispatch(new Traversal(getHistory(), nextHistory, direction, keyManager), this);
-    }
+		void bootstrap(History history, boolean restore) {
+			if (dispatcher == null) {
+				throw new AssertionError("Bad doExecute method allowed dispatcher to be cleared");
+			}
+			if (!restore) {
+				keyManager.setUp(history.top());
+				modelManager.setUp(history.top());
+			}
+			dispatcher.dispatch(new Traversal(null, history, Direction.REPLACE, keyManager), this);
+		}
 
-    final void execute() {
-      if (state != TraversalState.ENQUEUED) throw new AssertionError("unexpected state " + state);
-      if (dispatcher == null) throw new AssertionError("Caller must ensure that dispatcher is set");
+		void dispatch(History nextHistory, Direction direction) {
+			this.nextHistory = checkNotNull(nextHistory, "nextHistory");
+			if (dispatcher == null) {
+				throw new AssertionError("Bad doExecute method allowed dispatcher to be cleared");
+			}
+			keyManager.setUp(nextHistory.top());
+			modelManager.setUp(nextHistory.top());
+			dispatcher.dispatch(new Traversal(getHistory(), nextHistory, direction, keyManager), this);
+		}
 
-      state = TraversalState.DISPATCHED;
-      doExecute();
-    }
+		final void execute() {
+			if (state != TraversalState.ENQUEUED) {
+				throw new AssertionError("unexpected state " + state);
+			}
+			if (dispatcher == null) {
+				throw new AssertionError("Caller must ensure that dispatcher is set");
+			}
 
-    final void clearHistory() {
-      Iterator<Object> it = tearDownKeys.iterator();
-      while (it.hasNext()) {
-        keyManager.tearDown(it.next());
-        it.remove();
-      }
-      keyManager.clearStatesExcept(Collections.emptyList());
-      next = null;
-      pendingTraversal = null;
-      state = TraversalState.FINISHED;
-      historyCallback.onHistoryCleared();
-    }
+			state = TraversalState.DISPATCHED;
+			doExecute();
+		}
 
-    /**
-     * Must be synchronous and end with a call to {@link #dispatch} or {@link
-     * #onTraversalCompleted()}.
-     */
-    abstract void doExecute();
-  }
+		final void clearHistory() {
+			Iterator<Object> it = tearDownKeys.iterator();
+			while (it.hasNext()) {
+				Object next = it.next();
+				keyManager.tearDown(next);
+				modelManager.tearDown(next);
+				it.remove();
+			}
+			keyManager.clearStatesExcept(Collections.emptyList());
+			next = null;
+			pendingTraversal = null;
+			state = TraversalState.FINISHED;
+			historyCallback.onHistoryCleared();
+		}
+
+		/**
+		 * Must be synchronous and end with a call to {@link #dispatch} or {@link
+		 * #onTraversalCompleted()}.
+		 */
+		abstract void doExecute();
+	}
 }
