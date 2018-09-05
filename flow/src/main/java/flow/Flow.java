@@ -437,12 +437,32 @@ public final class Flow {
 				while (it.hasNext()) {
 					Object next = it.next();
 					keyManager.tearDown(next);
-					modelManager.tearDown(next);
 					it.remove();
 				}
 				keyManager.clearStatesExcept(history.asList());
 			} else if (dispatcher != null) {
 				pendingTraversal.execute();
+			}
+		}
+
+		private void updateModels() {
+			if (nextHistory == null || history == nextHistory || next != null) {
+				return;
+			}
+
+			List<Object> oldKeys = history.asList();
+			List<Object> newKeys = nextHistory.asList();
+
+			for (Object key : oldKeys) {
+				if (!newKeys.contains(key)) {
+					modelManager.tearDown(key);
+				}
+			}
+
+			for (Object key : newKeys) {
+				if (!oldKeys.contains(key)) {
+					modelManager.setUp(key);
+				}
 			}
 		}
 
@@ -452,7 +472,9 @@ public final class Flow {
 			}
 			if (!restore) {
 				keyManager.setUp(history.top());
-				modelManager.setUp(history.top());
+				for (Object key : history.framesFromTop()) {
+					modelManager.setUp(key);
+				}
 			}
 			dispatcher.dispatch(new Traversal(null, history, Direction.REPLACE, keyManager), this);
 		}
@@ -462,8 +484,8 @@ public final class Flow {
 			if (dispatcher == null) {
 				throw new AssertionError("Bad doExecute method allowed dispatcher to be cleared");
 			}
+			updateModels();
 			keyManager.setUp(nextHistory.top());
-			modelManager.setUp(nextHistory.top());
 			dispatcher.dispatch(new Traversal(getHistory(), nextHistory, direction, keyManager), this);
 		}
 
