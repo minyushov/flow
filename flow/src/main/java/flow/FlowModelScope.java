@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class FlowModelAdapter {
-	private final static String TAGS = "flow-model-adapter:tags";
+public abstract class FlowModelScope {
+	private final static String TAGS = "flow-model-scope:tags";
 
 	// tag to model relations
 	private final HashMap<String, Object> models = new LinkedHashMap<>();
@@ -21,7 +21,7 @@ public abstract class FlowModelAdapter {
 		Object model = models.get(user.getTag());
 		if (model == null) {
 			models.put(user.getTag(), createModel());
-			users.put(user.getTag(), new ArrayList<FlowModelUser>());
+			users.put(user.getTag(), new ArrayList<>());
 		}
 
 		users.get(user.getTag()).add(user);

@@ -6,50 +6,50 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 final class FlowModelManager {
-	private final List<FlowModelAdapter> adapters;
+	private final List<FlowModelScope> scopes;
 
-	FlowModelManager(@NonNull List<FlowModelAdapter> adapters) {
-		this.adapters = adapters;
+	FlowModelManager(@NonNull List<FlowModelScope> scopes) {
+		this.scopes = scopes;
 	}
 
 	Object getModel(@NonNull Object key) {
-		FlowModelAdapter adapter = getAdapter(key);
-		if (adapter == null) {
+		FlowModelScope scope = getScope(key);
+		if (scope == null) {
 			return null;
 		}
 
-		return adapter.getModel((FlowModelUser) key);
+		return scope.getModel((FlowModelUser) key);
 	}
 
 	void setUp(@NonNull Object key) {
-		FlowModelAdapter adapter = getAdapter(key);
-		if (adapter == null) {
+		FlowModelScope scope = getScope(key);
+		if (scope == null) {
 			return;
 		}
 
-		adapter.setUp(((FlowModelUser) key));
+		scope.setUp(((FlowModelUser) key));
 	}
 
 	void tearDown(@NonNull Object key) {
-		FlowModelAdapter adapter = getAdapter(key);
-		if (adapter == null) {
+		FlowModelScope scope = getScope(key);
+		if (scope == null) {
 			return;
 		}
 
-		adapter.tearDown(((FlowModelUser) key));
+		scope.tearDown(((FlowModelUser) key));
 	}
 
 	@Nullable
-	private FlowModelAdapter getAdapter(@NonNull Object key) {
+	private FlowModelScope getScope(@NonNull Object key) {
 		if (!(key instanceof FlowModelUser)) {
 			return null;
 		}
 
-		Class adapterClass = ((FlowModelUser) key).getAdapterClass();
+		Class scopeClass = ((FlowModelUser) key).getScope();
 
-		for (FlowModelAdapter adapter : adapters) {
-			if (adapter.getClass().isAssignableFrom(adapterClass)) {
-				return adapter;
+		for (FlowModelScope scope : scopes) {
+			if (scope.getClass().isAssignableFrom(scopeClass)) {
+				return scope;
 			}
 		}
 

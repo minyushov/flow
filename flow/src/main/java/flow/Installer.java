@@ -29,7 +29,7 @@ public final class Installer {
   private final Context baseContext;
   private final Activity activity;
   private final List<ServicesFactory> servicesFactories = new ArrayList<>();
-  private final List<FlowModelAdapter> flowModelAdapters = new ArrayList<>();
+  private final List<FlowModelScope> flowModelScopes = new ArrayList<>();
   private KeyParceler parceler;
   private Object defaultKey;
   private Dispatcher dispatcher;
@@ -71,8 +71,8 @@ public final class Installer {
     return this;
   }
 
-  @NonNull public Installer addFlowModelAdadpter(@NonNull FlowModelAdapter adapter) {
-    flowModelAdapters.add(adapter);
+  @NonNull public Installer addFlowModelScope(@NonNull FlowModelScope scope) {
+    flowModelScopes.add(scope);
     return this;
   }
 
@@ -95,7 +95,7 @@ public final class Installer {
     final History defaultHistory = History.single(defState);
     final Application app = (Application) baseContext.getApplicationContext();
     final KeyManager keyManager = new KeyManager(servicesFactories);
-    final FlowModelManager modelManager = new FlowModelManager(flowModelAdapters);
+    final FlowModelManager modelManager = new FlowModelManager(flowModelScopes);
 
     InternalLifecycleIntegration.install(app, activity, parceler, defaultHistory, dispatcher,
         keyManager, modelManager, historyCallback);

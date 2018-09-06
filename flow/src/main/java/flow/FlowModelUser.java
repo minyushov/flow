@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 public interface FlowModelUser {
 	@NonNull
-	Class getAdapterClass();
+	Class getScope();
 
 	@NonNull
 	String getTag();
