@@ -30,11 +30,12 @@ public final class Installer {
 
   private final Context baseContext;
   private final Activity activity;
-  private final List<ServicesFactory> contextFactories = new ArrayList<>();
+  private final List<ServicesFactory> servicesFactories = new ArrayList<>();
+  private final List<FlowModelScope> flowModelScopes = new ArrayList<>();
   private KeyParceler parceler;
   private Object defaultKey;
   private Dispatcher dispatcher;
-  private HistoryFilter historyFilter;
+  private HistoryCallback historyCallback;
 
   Installer(Context baseContext, Activity activity) {
     this.baseContext = baseContext;
@@ -56,8 +57,8 @@ public final class Installer {
     return this;
   }
 
-  @NonNull public Installer historyFilter(@Nullable HistoryFilter historyFilter) {
-    this.historyFilter = historyFilter;
+  @NonNull public Installer historyCallback(@Nullable HistoryCallback historyCallback) {
+    this.historyCallback = historyCallback;
     return this;
   }
 
@@ -68,7 +69,12 @@ public final class Installer {
    * in reverse order during teardown.
    */
   @NonNull public Installer addServicesFactory(@NonNull ServicesFactory factory) {
-    contextFactories.add(factory);
+    servicesFactories.add(factory);
+    return this;
+  }
+
+  @NonNull public Installer addFlowModelScope(@NonNull FlowModelScope scope) {
+    flowModelScopes.add(scope);
     return this;
   }
 
@@ -82,12 +88,19 @@ public final class Installer {
           .build();
     }
     final Object defState = defaultKey == null ? "Hello, World!" : defaultKey;
-    final HistoryFilter filter = historyFilter == null ? new NotPersistentHistoryFilter() : historyFilter;
+    final HistoryCallback historyCallback = this.historyCallback == null ? new NotPersistentHistoryCallback() {
+      @Override
+      public void onHistoryCleared() {
+        activity.finish();
+      }
+    } : this.historyCallback;
     final History defaultHistory = History.single(defState);
     final Application app = (Application) baseContext.getApplicationContext();
-    final KeyManager keyManager = new KeyManager(contextFactories);
+    final KeyManager keyManager = new KeyManager(servicesFactories);
+    final FlowModelManager modelManager = new FlowModelManager(flowModelScopes);
+
     InternalLifecycleIntegration.install(app, activity, parceler, defaultHistory, dispatcher,
-        keyManager, filter);
+        keyManager, modelManager, historyCallback);
     return new InternalContextWrapper(baseContext, activity);
   }
 }

@@ -33,9 +33,7 @@ public class MultiKeySampleActivity extends AppCompatActivity {
   }
 
   @Override public void onBackPressed() {
-    if (!getFlow().goBack()) {
-      super.onBackPressed();
-    }
+    getFlow().goBack();
   }
 
   private final class Changer implements KeyChanger {

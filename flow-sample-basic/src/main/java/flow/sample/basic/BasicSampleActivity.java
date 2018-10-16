@@ -21,8 +21,9 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import flow.Flow;
+import flow.HistoryCallback;
 
-public class BasicSampleActivity extends AppCompatActivity {
+public class BasicSampleActivity extends AppCompatActivity implements HistoryCallback {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -30,17 +31,21 @@ public class BasicSampleActivity extends AppCompatActivity {
   }
 
   @Override protected void attachBaseContext(Context baseContext) {
-    baseContext = Flow.configure(baseContext, this) //
-        .dispatcher(new BasicDispatcher(this)) //
-        .defaultKey(new WelcomeScreen()) //
-        .keyParceler(new BasicKeyParceler()) //
+    baseContext = Flow.configure(baseContext, this)
+        .dispatcher(new BasicDispatcher(this))
+        .defaultKey(new WelcomeScreen())
+        .keyParceler(new BasicKeyParceler())
+        .historyCallback(this)
         .install();
     super.attachBaseContext(baseContext);
   }
 
   @Override public void onBackPressed() {
-    if (!Flow.get(this).goBack()) {
-      super.onBackPressed();
-    }
+    Flow.get(this).goBack();
+  }
+
+  @Override
+  public void onHistoryCleared() {
+    super.onBackPressed();
   }
 }

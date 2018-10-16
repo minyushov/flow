@@ -29,8 +29,6 @@ public class HelloWorldActivity extends AppCompatActivity {
   }
 
   @Override public void onBackPressed() {
-    if (!Flow.get(this).goBack()) {
-      super.onBackPressed();
-    }
+    Flow.get(this).goBack();
   }
 }

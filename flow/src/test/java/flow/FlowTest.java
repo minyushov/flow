@@ -30,6 +30,9 @@ import org.mockito.Mockito;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FlowTest {
@@ -55,6 +58,7 @@ public class FlowTest {
   final TestKey noPersist = new NoPersist();
 
   @Mock KeyManager keyManager;
+  @Mock HistoryCallback historyCallback;
   History lastStack;
   Direction lastDirection;
 
@@ -91,7 +95,8 @@ public class FlowTest {
 
     void assertDispatching(Object newTop) {
       assertThat(callback).isNotNull();
-      assertThat(traversal.destination.top()).isEqualTo(newTop);
+      Object key = traversal.destination.top();
+      assertThat(key).isEqualTo(newTop);
     }
   }
 
@@ -103,24 +108,36 @@ public class FlowTest {
     History history = History.single(new Uno());
     Flow flow = new Flow(keyManager, history);
     flow.setDispatcher(new FlowDispatcher());
+    flow.setHistoryCallback(historyCallback);
 
     flow.set(new Dos());
-    assertThat(lastStack.top()).isInstanceOf(Dos.class);
+
+    Object top = lastStack.top();
+    assertThat(top).isInstanceOf(Dos.class);
     assertThat(lastDirection).isSameAs(Direction.FORWARD);
 
     flow.set(new Tres());
-    assertThat(lastStack.top()).isInstanceOf(Tres.class);
+
+    top = lastStack.top();
+    assertThat(top).isInstanceOf(Tres.class);
     assertThat(lastDirection).isSameAs(Direction.FORWARD);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isInstanceOf(Dos.class);
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isInstanceOf(Dos.class);
     assertThat(lastDirection).isSameAs(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isInstanceOf(Uno.class);
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isInstanceOf(Uno.class);
     assertThat(lastDirection).isSameAs(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isFalse();
+    flow.goBack();
+    verify(historyCallback, times(1)).onHistoryCleared();
   }
 
   @Test public void historyChangesAfterListenerCall() {
@@ -155,14 +172,22 @@ public class FlowTest {
 
     Flow flow = new Flow(keyManager, history);
     flow.setDispatcher(new FlowDispatcher());
+    flow.setHistoryCallback(historyCallback);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isEqualTo(baker);
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isEqualTo(able);
+    Object top = lastStack.top();
+    assertThat(top).isEqualTo(baker);
 
-    assertThat(flow.goBack()).isFalse();
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isEqualTo(able);
+
+    flow.goBack();
+    verify(historyCallback, times(1)).onHistoryCleared();
   }
 
   @Test public void setHistoryWorks() {
@@ -170,15 +195,25 @@ public class FlowTest {
     Flow flow = new Flow(keyManager, history);
     FlowDispatcher dispatcher = new FlowDispatcher();
     flow.setDispatcher(dispatcher);
+    flow.setHistoryCallback(historyCallback);
 
     History newHistory =
         History.emptyBuilder().pushAll(Arrays.<Object>asList(charlie, delta)).build();
+
     flow.setHistory(newHistory, Direction.FORWARD);
     assertThat(lastDirection).isSameAs(Direction.FORWARD);
-    assertThat(lastStack.top()).isSameAs(delta);
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isSameAs(charlie);
-    assertThat(flow.goBack()).isFalse();
+
+    Object top = lastStack.top();
+    assertThat(top).isSameAs(delta);
+
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isSameAs(charlie);
+
+    flow.goBack();
+    verify(historyCallback, times(1)).onHistoryCleared();
   }
 
   @Test public void setObjectGoesBack() {
@@ -186,44 +221,66 @@ public class FlowTest {
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker, charlie, delta)).build();
     Flow flow = new Flow(keyManager, history);
     flow.setDispatcher(new FlowDispatcher());
+    flow.setHistoryCallback(historyCallback);
 
     assertThat(history.size()).isEqualTo(4);
 
     flow.set(charlie);
-    assertThat(lastStack.top()).isEqualTo(charlie);
+
+    Object top = lastStack.top();
+    assertThat(top).isEqualTo(charlie);
     assertThat(lastStack.size()).isEqualTo(3);
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isEqualTo(baker);
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isEqualTo(baker);
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isEqualTo(able);
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isEqualTo(able);
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isFalse();
+    flow.goBack();
+    verify(historyCallback, times(1)).onHistoryCleared();
   }
 
   @Test public void setObjectToMissingObjectPushes() {
     History history = History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker)).build();
     Flow flow = new Flow(keyManager, history);
     flow.setDispatcher(new FlowDispatcher());
+    flow.setHistoryCallback(historyCallback);
+
     assertThat(history.size()).isEqualTo(2);
 
     flow.set(charlie);
-    assertThat(lastStack.top()).isEqualTo(charlie);
+
+    Object top = lastStack.top();
+    assertThat(top).isEqualTo(charlie);
     assertThat(lastStack.size()).isEqualTo(3);
     assertThat(lastDirection).isEqualTo(Direction.FORWARD);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isEqualTo(baker);
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isEqualTo(baker);
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isEqualTo(able);
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isEqualTo(able);
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
-    assertThat(flow.goBack()).isFalse();
+
+    flow.goBack();
+    verify(historyCallback, times(1)).onHistoryCleared();
   }
 
   @Test public void setObjectKeepsOriginal() {
@@ -233,9 +290,11 @@ public class FlowTest {
     assertThat(history.size()).isEqualTo(2);
 
     flow.set(new TestKey("Able"));
-    assertThat(lastStack.top()).isEqualTo(new TestKey("Able"));
-    assertThat(lastStack.top() == able).isTrue();
-    assertThat(lastStack.top()).isSameAs(able);
+
+    Object top = lastStack.top();
+    assertThat(top).isEqualTo(new TestKey("Able"));
+    assertThat(top == able).isTrue();
+    assertThat(top).isSameAs(able);
     assertThat(lastStack.size()).isEqualTo(1);
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
   }
@@ -248,9 +307,11 @@ public class FlowTest {
     assertThat(history.size()).isEqualTo(3);
 
     flow.replaceHistory(delta, Direction.REPLACE);
-    assertThat(lastStack.top()).isEqualTo(new TestKey("Delta"));
-    assertThat(lastStack.top() == delta).isTrue();
-    assertThat(lastStack.top()).isSameAs(delta);
+
+    Object top = lastStack.top();
+    assertThat(top).isEqualTo(new TestKey("Delta"));
+    assertThat(top == delta).isTrue();
+    assertThat(top).isSameAs(delta);
     assertThat(lastStack.size()).isEqualTo(1);
     assertThat(lastDirection).isEqualTo(Direction.REPLACE);
   }
@@ -263,9 +324,11 @@ public class FlowTest {
     assertThat(history.size()).isEqualTo(3);
 
     flow.replaceTop(delta, Direction.REPLACE);
-    assertThat(lastStack.top()).isEqualTo(new TestKey("Delta"));
-    assertThat(lastStack.top() == delta).isTrue();
-    assertThat(lastStack.top()).isSameAs(delta);
+
+    Object top = lastStack.top();
+    assertThat(top).isEqualTo(new TestKey("Delta"));
+    assertThat(top == delta).isTrue();
+    assertThat(top).isSameAs(delta);
     assertThat(lastStack.size()).isEqualTo(3);
     assertThat(lastDirection).isEqualTo(Direction.REPLACE);
   }
@@ -368,16 +431,27 @@ public class FlowTest {
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker, echo, foxtrot)).build();
     flow.setHistory(newHistory, Direction.REPLACE);
     assertThat(lastStack.size()).isEqualTo(4);
-    assertThat(lastStack.top()).isEqualTo(foxtrot);
+
+    Object top = lastStack.top();
+    assertThat(top).isEqualTo(foxtrot);
+
     flow.goBack();
+
     assertThat(lastStack.size()).isEqualTo(3);
-    assertThat(lastStack.top()).isEqualTo(echo);
+    top = lastStack.top();
+    assertThat(top).isEqualTo(echo);
+
     flow.goBack();
+
     assertThat(lastStack.size()).isEqualTo(2);
-    assertThat(lastStack.top()).isSameAs(baker);
+    top = lastStack.top();
+    assertThat(top).isSameAs(baker);
+
     flow.goBack();
+
     assertThat(lastStack.size()).isEqualTo(1);
-    assertThat(lastStack.top()).isSameAs(able);
+    top = lastStack.top();
+    assertThat(top).isSameAs(able);
   }
 
   static class Picky {
@@ -407,23 +481,33 @@ public class FlowTest {
         .build();
     Flow flow = new Flow(keyManager, history);
     flow.setDispatcher(new FlowDispatcher());
+    flow.setHistoryCallback(historyCallback);
 
     assertThat(history.size()).isEqualTo(4);
 
     flow.set(new Picky("Charlie"));
-    assertThat(lastStack.top()).isEqualTo(new Picky("Charlie"));
+
+    Object top = lastStack.top();
+    assertThat(top).isEqualTo(new Picky("Charlie"));
     assertThat(lastStack.size()).isEqualTo(3);
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isEqualTo(new Picky("Baker"));
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isEqualTo(new Picky("Baker"));
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isTrue();
-    assertThat(lastStack.top()).isEqualTo(new Picky("Able"));
+    flow.goBack();
+    verify(historyCallback, never()).onHistoryCleared();
+
+    top = lastStack.top();
+    assertThat(top).isEqualTo(new Picky("Able"));
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD);
 
-    assertThat(flow.goBack()).isFalse();
+    flow.goBack();
+    verify(historyCallback, times(1)).onHistoryCleared();
   }
 
   @Test public void incorrectFlowGetUsage() {
@@ -444,7 +528,7 @@ public class FlowTest {
     History history =
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, noPersist, charlie)).build();
 
-    HistoryFilter filter = new NotPersistentHistoryFilter();
+    HistoryCallback filter = new NotPersistentHistoryCallback();
 
     List<Object> expected = History.emptyBuilder().pushAll(asList(able, charlie)).build().asList();
     assertThat(filter.onSaveHistory(history).asList()).isEqualTo(expected);
