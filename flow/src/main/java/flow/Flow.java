@@ -90,6 +90,11 @@ public final class Flow {
     return getService(serviceName, view.getContext());
   }
 
+  @Nullable
+  public static Object getModel(@NonNull Object user, @NonNull Context context) {
+    return Flow.get(context).modelManager.getModel(user);
+  }
+
   @NonNull
   public static Installer configure(@NonNull Context baseContext, @NonNull Activity activity) {
     return new Installer(baseContext, activity);
@@ -123,9 +128,11 @@ public final class Flow {
   private HistoryCallback historyCallback;
   private List<Object> tearDownKeys = new ArrayList<>();
   private final KeyManager keyManager;
+  private final FlowModelManager modelManager;
 
-  Flow(KeyManager keyManager, History history) {
+  Flow(KeyManager keyManager, FlowModelManager modelManager, History history) {
     this.keyManager = keyManager;
+    this.modelManager = modelManager;
     this.history = history;
   }
 
@@ -375,6 +382,7 @@ public final class Flow {
       }
     }
 
+
     @Override public void onTraversalCompleted() {
       if (state != TraversalState.DISPATCHED) {
         throw new IllegalStateException(
@@ -401,12 +409,33 @@ public final class Flow {
       }
     }
 
+    private void updateModels() {
+      if (nextHistory == null || history == nextHistory || next != null) {
+        return;
+      }
+      List<Object> oldKeys = history.asList();
+      List<Object> newKeys = nextHistory.asList();
+      for (Object key : oldKeys) {
+        if (!newKeys.contains(key)) {
+          modelManager.tearDown(key);
+        }
+      }
+      for (Object key : newKeys) {
+        if (!oldKeys.contains(key)) {
+          modelManager.setUp(key);
+        }
+      }
+    }
+
     void bootstrap(History history, boolean restore) {
       if (dispatcher == null) {
         throw new AssertionError("Bad doExecute method allowed dispatcher to be cleared");
       }
       if (!restore) {
         keyManager.setUp(history.top());
+        for (Object key : history.framesFromTop()) {
+          modelManager.setUp(key);
+        }
       }
       dispatcher.dispatch(new Traversal(null, history, Direction.REPLACE, keyManager), this);
     }
@@ -416,6 +445,7 @@ public final class Flow {
       if (dispatcher == null) {
         throw new AssertionError("Bad doExecute method allowed dispatcher to be cleared");
       }
+      updateModels();
       keyManager.setUp(nextHistory.top());
       dispatcher.dispatch(new Traversal(getHistory(), nextHistory, direction, keyManager), this);
     }
@@ -431,7 +461,9 @@ public final class Flow {
     final void clearHistory() {
       Iterator<Object> it = tearDownKeys.iterator();
       while (it.hasNext()) {
-        keyManager.tearDown(it.next());
+        Object next = it.next();
+        keyManager.tearDown(next);
+        modelManager.tearDown(next);
         it.remove();
       }
       keyManager.clearStatesExcept(Collections.emptyList());

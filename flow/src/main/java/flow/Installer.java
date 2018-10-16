@@ -28,7 +28,8 @@ public final class Installer {
 
   private final Context baseContext;
   private final Activity activity;
-  private final List<ServicesFactory> contextFactories = new ArrayList<>();
+  private final List<ServicesFactory> servicesFactories = new ArrayList<>();
+  private final List<FlowModelScope> flowModelScopes = new ArrayList<>();
   private KeyParceler parceler;
   private Object defaultKey;
   private Dispatcher dispatcher;
@@ -66,7 +67,12 @@ public final class Installer {
    * in reverse order during teardown.
    */
   @NonNull public Installer addServicesFactory(@NonNull ServicesFactory factory) {
-    contextFactories.add(factory);
+    servicesFactories.add(factory);
+    return this;
+  }
+
+  @NonNull public Installer addFlowModelScope(@NonNull FlowModelScope scope) {
+    flowModelScopes.add(scope);
     return this;
   }
 
@@ -88,10 +94,11 @@ public final class Installer {
     } : this.historyCallback;
     final History defaultHistory = History.single(defState);
     final Application app = (Application) baseContext.getApplicationContext();
-    final KeyManager keyManager = new KeyManager(contextFactories);
+    final KeyManager keyManager = new KeyManager(servicesFactories);
+    final FlowModelManager modelManager = new FlowModelManager(flowModelScopes);
 
     InternalLifecycleIntegration.install(app, activity, parceler, defaultHistory, dispatcher,
-        keyManager, historyCallback);
+        keyManager, modelManager, historyCallback);
     return new InternalContextWrapper(baseContext, activity);
   }
 }

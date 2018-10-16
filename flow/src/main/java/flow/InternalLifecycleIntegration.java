@@ -50,9 +50,14 @@ public final class InternalLifecycleIntegration extends Fragment {
     return (InternalLifecycleIntegration) fragmentByTag;
   }
 
-  static void install(final Application app, final Activity activity,
-                      @Nullable final KeyParceler parceler, final History defaultHistory,
-                      final Dispatcher dispatcher, final KeyManager keyManager, final HistoryCallback historyCallback) {
+  static void install(final Application app,
+                      final Activity activity,
+                      @Nullable final KeyParceler parceler,
+                      final History defaultHistory,
+                      final Dispatcher dispatcher,
+                      final KeyManager keyManager,
+                      final FlowModelManager flowModelManager,
+                      final HistoryCallback historyCallback) {
     app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
       @Override public void onActivityCreated(Activity a, Bundle savedInstanceState) {
         if (a == activity) {
@@ -66,6 +71,9 @@ public final class InternalLifecycleIntegration extends Fragment {
             fragment.parceler = parceler;
             fragment.keyManager = keyManager;
             fragment.historyCallback = historyCallback;
+          }
+          if (fragment.flowModelManager == null) {
+            fragment.flowModelManager = flowModelManager;
           }
           // We always replace the dispatcher because it frequently references the Activity.
           fragment.dispatcher = dispatcher;
@@ -102,6 +110,7 @@ public final class InternalLifecycleIntegration extends Fragment {
 
   Flow flow;
   KeyManager keyManager;
+  FlowModelManager flowModelManager;
   @Nullable KeyParceler parceler;
   History defaultHistory;
   HistoryCallback historyCallback;
@@ -146,7 +155,7 @@ public final class InternalLifecycleIntegration extends Fragment {
         savedHistory = historyCallback.onRestoreHistory(builder.build());
       }
       History history = selectHistory(intent, savedHistory, defaultHistory, parceler, keyManager);
-      flow = new Flow(keyManager, history);
+      flow = new Flow(keyManager, flowModelManager, history);
       flow.setDispatcher(dispatcher, false);
     } else {
       flow.setDispatcher(dispatcher, true);
@@ -171,6 +180,7 @@ public final class InternalLifecycleIntegration extends Fragment {
 
   @Override public void onDestroy() {
     keyManager.tearDown(flow.getHistory().top());
+    flowModelManager.tearDown(flow.getHistory().top());
     super.onDestroy();
   }
 
