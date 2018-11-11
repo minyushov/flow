@@ -6,14 +6,15 @@ buildscript {
     androidCompileSdkVersion = 28
     androidTargetSdkVersion = 28
 
-    androidxVersion = "1.0.0"
-    androidxTestVersion = "1.1.0-beta02"
+    androidAppcompatVersion = "1.0.2"
+    androidMaterialVersion = "1.0.0"
+    androidTestVersion = "1.1.0"
+    androidAnnotationVersion = "1.0.0"
+    androidEspressoVersion = "3.1.0"
 
-    espressoVersion = "3.1.0-beta02"
     junitVersion = "4.12"
     assertjVersion = "3.10.0"
-    mockitoVersion = "2.21.0"
-    robolectricVersion = "3.8"
+    mockitoVersion = "2.23.0"
   }
 
   repositories {

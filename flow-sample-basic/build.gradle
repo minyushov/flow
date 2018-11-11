@@ -21,10 +21,10 @@ android {
 dependencies {
   implementation project(':flow')
 
-  implementation "androidx.appcompat:appcompat:$androidxVersion"
-  implementation "com.google.android.material:material:$androidxVersion"
+  implementation "androidx.appcompat:appcompat:$androidAppcompatVersion"
+  implementation "com.google.android.material:material:$androidMaterialVersion"
 
-  androidTestImplementation "androidx.test:runner:$androidxTestVersion"
-  androidTestImplementation "androidx.test:rules:$androidxTestVersion"
-  androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
+  androidTestImplementation "androidx.test:runner:$androidTestVersion"
+  androidTestImplementation "androidx.test:rules:$androidTestVersion"
+  androidTestImplementation "androidx.test.espresso:espresso-core:$androidEspressoVersion"
 }

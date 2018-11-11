@@ -16,16 +16,17 @@
 package flow;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import androidx.annotation.NonNull;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,6 +59,7 @@ public class FlowTest {
   final TestKey noPersist = new NoPersist();
 
   @Mock KeyManager keyManager;
+  @Mock FlowModelManager modelManager;
   @Mock HistoryCallback historyCallback;
   History lastStack;
   Direction lastDirection;
@@ -106,7 +108,7 @@ public class FlowTest {
 
   @Test public void oneTwoThree() {
     History history = History.single(new Uno());
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     flow.setHistoryCallback(historyCallback);
 
@@ -144,7 +146,7 @@ public class FlowTest {
     final History firstHistory = History.single(new Uno());
 
     class Ourrobouros implements Dispatcher {
-      Flow flow = new Flow(keyManager, firstHistory);
+      Flow flow = new Flow(keyManager, modelManager, firstHistory);
 
       {
         flow.setDispatcher(this);
@@ -170,7 +172,7 @@ public class FlowTest {
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker, charlie)).build();
     assertThat(history.size()).isEqualTo(3);
 
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     flow.setHistoryCallback(historyCallback);
 
@@ -192,7 +194,7 @@ public class FlowTest {
 
   @Test public void setHistoryWorks() {
     History history = History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker)).build();
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     FlowDispatcher dispatcher = new FlowDispatcher();
     flow.setDispatcher(dispatcher);
     flow.setHistoryCallback(historyCallback);
@@ -219,7 +221,7 @@ public class FlowTest {
   @Test public void setObjectGoesBack() {
     History history =
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker, charlie, delta)).build();
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     flow.setHistoryCallback(historyCallback);
 
@@ -252,7 +254,7 @@ public class FlowTest {
 
   @Test public void setObjectToMissingObjectPushes() {
     History history = History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker)).build();
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     flow.setHistoryCallback(historyCallback);
 
@@ -285,7 +287,7 @@ public class FlowTest {
 
   @Test public void setObjectKeepsOriginal() {
     History history = History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker)).build();
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     assertThat(history.size()).isEqualTo(2);
 
@@ -302,7 +304,7 @@ public class FlowTest {
   @Test public void replaceHistoryResultsInLengthOneHistory() {
     History history =
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker, charlie)).build();
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     assertThat(history.size()).isEqualTo(3);
 
@@ -319,7 +321,7 @@ public class FlowTest {
   @Test public void replaceTopDoesNotAlterHistoryLength() {
     History history =
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker, charlie)).build();
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     assertThat(history.size()).isEqualTo(3);
 
@@ -337,7 +339,7 @@ public class FlowTest {
     AsyncDispatcher firstDispatcher = new AsyncDispatcher();
 
     History history = History.single(able);
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(firstDispatcher);
 
     // Quick check that we bootstrapped (and test the test dispatcher).
@@ -360,7 +362,7 @@ public class FlowTest {
     AsyncDispatcher firstDispatcher = new AsyncDispatcher();
 
     History history = History.single(able);
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(firstDispatcher);
     firstDispatcher.fire();
 
@@ -391,7 +393,7 @@ public class FlowTest {
     AsyncDispatcher firstDispatcher = new AsyncDispatcher();
 
     History history = History.single(able);
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(firstDispatcher);
     firstDispatcher.fire();
 
@@ -421,7 +423,7 @@ public class FlowTest {
     TestKey delta = new TestKey("Delta");
     History history =
         History.emptyBuilder().pushAll(Arrays.<Object>asList(able, baker, charlie, delta)).build();
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     assertThat(history.size()).isEqualTo(4);
 
@@ -479,7 +481,7 @@ public class FlowTest {
         .pushAll(Arrays.<Object>asList(new Picky("Able"), new Picky("Baker"), new Picky("Charlie"),
             new Picky("Delta")))
         .build();
-    Flow flow = new Flow(keyManager, history);
+    Flow flow = new Flow(keyManager, modelManager, history);
     flow.setDispatcher(new FlowDispatcher());
     flow.setHistoryCallback(historyCallback);
 

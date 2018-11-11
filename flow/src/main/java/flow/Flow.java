@@ -131,7 +131,7 @@ public final class Flow {
   private final KeyManager keyManager;
   private final FlowModelManager modelManager;
 
-  Flow(KeyManager keyManager, FlowModelManager modelManager, History history) {
+  Flow(@NonNull KeyManager keyManager, @NonNull FlowModelManager modelManager, History history) {
     this.keyManager = keyManager;
     this.modelManager = modelManager;
     this.history = history;

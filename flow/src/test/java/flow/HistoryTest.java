@@ -16,21 +16,17 @@
 
 package flow;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 
-@RunWith(RobolectricTestRunner.class) // Necessary for functional SparseArray
-@Config(manifest = Config.NONE) //
 public class HistoryTest {
   private static final TestKey ABLE = new TestKey("able");
   private static final TestKey BAKER = new TestKey("baker");
