@@ -411,7 +411,7 @@ public final class Flow {
     }
 
     private void updateModels() {
-      if (nextHistory == null || history == nextHistory || next != null) {
+      if (nextHistory == null || history == nextHistory) {
         return;
       }
       List<Object> oldKeys = history.asList();
