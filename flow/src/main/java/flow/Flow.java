@@ -237,7 +237,11 @@ public final class Flow {
     move(new PendingTraversal() {
       @Override void doExecute() {
         if (newTopKey.equals(history.top())) {
-          dispatch(history, Direction.REPLACE);
+          if (newTopKey instanceof NonPreservableKey) {
+            dispatch(history.buildUpon().pop(1).push(newTopKey).build(), Direction.REPLACE);
+          } else {
+            dispatch(history, Direction.REPLACE);
+          }
           return;
         }
 
@@ -260,7 +264,11 @@ public final class Flow {
         History newHistory;
         if (preservedInstance != null) {
           // newTop was on the history. Put the preserved instance back on and dispatch.
-          builder.push(preservedInstance);
+          if (newTopKey instanceof NonPreservableKey) {
+            builder.push(newTopKey);
+          } else {
+            builder.push(preservedInstance);
+          }
           newHistory = builder.build();
           dispatch(newHistory, Direction.BACKWARD);
         } else {
