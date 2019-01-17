@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 
 public interface FlowModelUser {
   class Relations {
-  	@NonNull
+    @NonNull
     private final Map<Class, String> relations;
 
     public Relations(@NonNull Map<Class, String> relations) {
@@ -19,7 +19,7 @@ public interface FlowModelUser {
       return relations;
     }
 
-	Set<Class> getScopes() {
+    Set<Class> getScopes() {
       return relations.keySet();
     }
 
