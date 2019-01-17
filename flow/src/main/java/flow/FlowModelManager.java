@@ -22,25 +22,25 @@ class FlowModelManager {
   }
 
   void setUp(@NonNull FlowModelUser key) {
-  	for (Class scopeClass: key.getRelations().getScopes()) {
-	  FlowModelScope scope = getScope(scopeClass);
-	  if (scope == null) {
-	    continue;
-	  }
+    for (Class scopeClass: key.getRelations().getScopes()) {
+      FlowModelScope scope = getScope(scopeClass);
+      if (scope == null) {
+        continue;
+      }
 
-	  scope.setUp(key);
-	}
+      scope.setUp(key);
+    }
   }
 
   void tearDown(@NonNull FlowModelUser key) {
-	  for (Class scopeClass: key.getRelations().getScopes()) {
-		FlowModelScope scope = getScope(scopeClass);
-		if (scope == null) {
-			  return;
-		}
+    for (Class scopeClass: key.getRelations().getScopes()) {
+      FlowModelScope scope = getScope(scopeClass);
+      if (scope == null) {
+        return;
+      }
 
-		scope.tearDown(key);
-	  }
+      scope.tearDown(key);
+	}
   }
 
   @Nullable

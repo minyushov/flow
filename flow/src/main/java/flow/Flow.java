@@ -444,9 +444,9 @@ public final class Flow {
       if (!restore) {
         keyManager.setUp(history.top());
         for (Object key : history.framesFromTop()) {
-        	if (key instanceof FlowModelUser) {
-				modelManager.setUp((FlowModelUser) key);
-			}
+          if (key instanceof FlowModelUser) {
+		    modelManager.setUp((FlowModelUser) key);
+		  }
         }
       }
       dispatcher.dispatch(new Traversal(null, history, Direction.REPLACE, keyManager), this);
@@ -476,8 +476,8 @@ public final class Flow {
         Object next = it.next();
         keyManager.tearDown(next);
         if (next instanceof FlowModelUser) {
-			modelManager.tearDown((FlowModelUser) next);
-		}
+          modelManager.tearDown((FlowModelUser) next);
+        }
         it.remove();
       }
       keyManager.clearStatesExcept(Collections.emptyList());

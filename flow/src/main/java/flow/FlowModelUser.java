@@ -1,7 +1,7 @@
 package flow;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import androidx.annotation.NonNull;
@@ -9,23 +9,23 @@ import androidx.annotation.NonNull;
 public interface FlowModelUser {
   class Relations {
   	@NonNull
-    private final HashMap<Class, String> relations;
+    private final Map<Class, String> relations;
 
-    public Relations(@NonNull HashMap<Class, String> relations) {
+    public Relations(@NonNull Map<Class, String> relations) {
       this.relations = relations;
     }
 
-    HashMap<Class, String> getRelations() {
+    Map<Class, String> getRelations() {
       return relations;
-	}
+    }
 
 	Set<Class> getScopes() {
       return relations.keySet();
-	}
+    }
 
-	Collection<String> getTags() {
+    Collection<String> getTags() {
       return relations.values();
-	}
+    }
   }
 
   @NonNull
