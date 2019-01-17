@@ -91,9 +91,10 @@ public final class Flow {
     return getService(serviceName, view.getContext());
   }
 
+  @SuppressWarnings("unchecked")
   @Nullable
-  public static Object getModel(@NonNull Object user, @NonNull Context context) {
-    return Flow.get(context).modelManager.getModel(user);
+  public static <T> T getModel(@NonNull Class scopeClass, @NonNull String tag, @NonNull Context context) {
+    return (T) Flow.get(context).modelManager.getModel(scopeClass, tag);
   }
 
   @NonNull
@@ -425,13 +426,13 @@ public final class Flow {
       List<Object> oldKeys = history.asList();
       List<Object> newKeys = nextHistory.asList();
       for (Object key : oldKeys) {
-        if (!newKeys.contains(key)) {
-          modelManager.tearDown(key);
+        if (!newKeys.contains(key) && key instanceof FlowModelUser) {
+          modelManager.tearDown((FlowModelUser) key);
         }
       }
       for (Object key : newKeys) {
-        if (!oldKeys.contains(key)) {
-          modelManager.setUp(key);
+        if (!oldKeys.contains(key) && key instanceof FlowModelUser) {
+          modelManager.setUp((FlowModelUser) key);
         }
       }
     }
@@ -443,7 +444,9 @@ public final class Flow {
       if (!restore) {
         keyManager.setUp(history.top());
         for (Object key : history.framesFromTop()) {
-          modelManager.setUp(key);
+        	if (key instanceof FlowModelUser) {
+				modelManager.setUp((FlowModelUser) key);
+			}
         }
       }
       dispatcher.dispatch(new Traversal(null, history, Direction.REPLACE, keyManager), this);
@@ -472,7 +475,9 @@ public final class Flow {
       while (it.hasNext()) {
         Object next = it.next();
         keyManager.tearDown(next);
-        modelManager.tearDown(next);
+        if (next instanceof FlowModelUser) {
+			modelManager.tearDown((FlowModelUser) next);
+		}
         it.remove();
       }
       keyManager.clearStatesExcept(Collections.emptyList());

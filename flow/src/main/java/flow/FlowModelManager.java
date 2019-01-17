@@ -12,41 +12,39 @@ class FlowModelManager {
     this.scopes = scopes;
   }
 
-  Object getModel(@NonNull Object key) {
-    FlowModelScope scope = getScope(key);
+  Object getModel(@NonNull Class scopeClass, @NonNull String tag) {
+    FlowModelScope scope = getScope(scopeClass);
     if (scope == null) {
       return null;
     }
 
-    return scope.getModel((FlowModelUser) key);
+    return scope.getModel(tag);
   }
 
-  void setUp(@NonNull Object key) {
-    FlowModelScope scope = getScope(key);
-    if (scope == null) {
-      return;
-    }
+  void setUp(@NonNull FlowModelUser key) {
+  	for (Class scopeClass: key.getRelations().getScopes()) {
+	  FlowModelScope scope = getScope(scopeClass);
+	  if (scope == null) {
+	    continue;
+	  }
 
-    scope.setUp(((FlowModelUser) key));
+	  scope.setUp(key);
+	}
   }
 
-  void tearDown(@NonNull Object key) {
-    FlowModelScope scope = getScope(key);
-    if (scope == null) {
-      return;
-    }
+  void tearDown(@NonNull FlowModelUser key) {
+	  for (Class scopeClass: key.getRelations().getScopes()) {
+		FlowModelScope scope = getScope(scopeClass);
+		if (scope == null) {
+			  return;
+		}
 
-    scope.tearDown(((FlowModelUser) key));
+		scope.tearDown(key);
+	  }
   }
 
   @Nullable
-  private FlowModelScope getScope(@NonNull Object key) {
-    if (!(key instanceof FlowModelUser)) {
-      return null;
-    }
-
-    Class scopeClass = ((FlowModelUser) key).getScope();
-
+  private FlowModelScope getScope(@NonNull Class scopeClass) {
     for (FlowModelScope scope : scopes) {
       if (scope.getClass().isAssignableFrom(scopeClass)) {
         return scope;

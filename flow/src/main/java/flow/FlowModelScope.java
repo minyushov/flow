@@ -18,33 +18,38 @@ public abstract class FlowModelScope {
   private final HashMap<String, ArrayList<FlowModelUser>> users = new LinkedHashMap<>();
 
   final void setUp(@NonNull FlowModelUser user) {
-    Object model = models.get(user.getTag());
-    if (model == null) {
-      models.put(user.getTag(), createModel());
-      users.put(user.getTag(), new ArrayList<>());
-    }
+    for (String tag : user.getRelations().getTags()) {
+      Object model = models.get(tag);
 
-    users.get(user.getTag()).add(user);
+      if (model == null) {
+        models.put(tag, createModel());
+        users.put(tag, new ArrayList<>());
+      }
+
+      users.get(tag).add(user);
+    }
   }
 
   final void tearDown(@NonNull FlowModelUser user) {
-    ArrayList<FlowModelUser> modelUsers = users.get(user.getTag());
-    if (modelUsers == null) {
-      return;
-    }
+    for (String tag : user.getRelations().getTags()) {
+      ArrayList<FlowModelUser> modelUsers = users.get(tag);
+      if (modelUsers == null) {
+        continue;
+      }
 
-    modelUsers.remove(user);
+      modelUsers.remove(user);
 
-    if (modelUsers.isEmpty()) {
-      models.remove(user.getTag());
-      users.remove(user.getTag());
+      if (modelUsers.isEmpty()) {
+        models.remove(tag);
+        users.remove(tag);
+      }
     }
   }
 
-  @NonNull final Object getModel(@NonNull FlowModelUser user) {
-    Object model = models.get(user.getTag());
+  @NonNull final Object getModel(@NonNull String tag) {
+    Object model = models.get(tag);
     if (model == null) {
-      throw new IllegalStateException("No model currently exists for this user");
+      throw new IllegalStateException("No model currently exists for tag: " + tag);
     }
 
     return model;
