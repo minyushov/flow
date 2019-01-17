@@ -40,7 +40,7 @@ class FlowModelManager {
       }
 
       scope.tearDown(key);
-	}
+    }
   }
 
   @Nullable

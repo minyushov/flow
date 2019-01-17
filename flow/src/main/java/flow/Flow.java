@@ -445,8 +445,8 @@ public final class Flow {
         keyManager.setUp(history.top());
         for (Object key : history.framesFromTop()) {
           if (key instanceof FlowModelUser) {
-		    modelManager.setUp((FlowModelUser) key);
-		  }
+            modelManager.setUp((FlowModelUser) key);
+          }
         }
       }
       dispatcher.dispatch(new Traversal(null, history, Direction.REPLACE, keyManager), this);
