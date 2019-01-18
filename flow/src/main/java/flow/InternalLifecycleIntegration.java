@@ -181,8 +181,11 @@ public final class InternalLifecycleIntegration extends Fragment {
   }
 
   @Override public void onDestroy() {
-    keyManager.tearDown(flow.getHistory().top());
-    flowModelManager.tearDown(flow.getHistory().top());
+    Object key = flow.getHistory().top();
+    keyManager.tearDown(key);
+    if (key instanceof FlowModelUser) {
+      flowModelManager.tearDown((FlowModelUser) key);
+    }
     super.onDestroy();
   }
 
