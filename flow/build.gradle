@@ -10,7 +10,9 @@ android {
   }
 
   libraryVariants.all {
-    it.generateBuildConfig.enabled = false
+    it.generateBuildConfigProvider.configure {
+      it.enabled = false
+    }
   }
 
   compileOptions {
@@ -32,7 +34,7 @@ bintrayUpload {
   artifactId = "flow"
   repo = "android"
   groupId = "com.minyushov.android"
-  version = "1.0.4"
+  version = "1.0.5"
   vcsUrl = "https://github.com/minyushov/flow.git"
   license = "Apache-2.0"
   docs = false
