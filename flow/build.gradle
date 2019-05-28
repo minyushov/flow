@@ -31,12 +31,25 @@ dependencies {
 }
 
 bintrayUpload {
+  dryRun = false
   artifactId = "flow"
   repo = "android"
   groupId = "com.minyushov.android"
-  version = "1.0.5"
+  version = "1.0.6"
   vcsUrl = "https://github.com/minyushov/flow.git"
   license = "Apache-2.0"
-  docs = false
-  dryRun = false
+  docs = true
+  docsSettings {
+    project.android.libraryVariants.all { variant ->
+      if (variant.name == 'release') {
+        classpath += files(variant.javaCompileProvider.get().classpath)
+      }
+    }
+    options {
+      failOnError = false
+      docTitle "Flow ${bintrayUpload.version}"
+      windowTitle docTitle
+      links "https://developer.android.com/reference/"
+    }
+  }
 }
