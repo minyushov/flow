@@ -47,7 +47,7 @@ bintrayUpload {
     }
     options {
       failOnError = false
-      docTitle "Flow ${bintrayUpload.version}"
+      docTitle "Flow ${bintrayUpload.version.get()}"
       windowTitle docTitle
       links "https://developer.android.com/reference/"
     }
