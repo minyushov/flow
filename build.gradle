@@ -1,14 +1,15 @@
 buildscript {
   ext {
     javaVersion = JavaVersion.VERSION_1_8
+    kotlinVersion = "1.3.50"
 
-    androidMinSdkVersion = 14
-    androidCompileSdkVersion = 28
-    androidTargetSdkVersion = 28
+    androidMinSdkVersion = 17
+    androidCompileSdkVersion = 29
+    androidTargetSdkVersion = 29
 
-    androidAppcompatVersion = "1.0.2"
+    androidAppcompatVersion = "1.1.0"
     androidMaterialVersion = "1.0.0"
-    androidTestVersion = "1.1.0"
+    androidTestVersion = "1.2.0"
     androidAnnotationVersion = "1.0.2"
     androidEspressoVersion = "3.1.1"
 
@@ -20,12 +21,13 @@ buildscript {
   repositories {
     jcenter()
     google()
-    maven { url 'https://dl.bintray.com/minyushov/gradle' }
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.4.1'
-    classpath "com.minyushov.gradle:bintray:1.2.3"
+    classpath "com.android.tools.build:gradle:3.6.0-beta02"
+    classpath "com.minyushov.gradle:bintray:1.3.0-rc02"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion"
   }
 }
 
@@ -34,6 +36,12 @@ subprojects {
   repositories {
     jcenter()
     google()
+  }
+
+  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+      jvmTarget = '1.8'
+    }
   }
 
   afterEvaluate { project ->

@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
   compileSdkVersion androidCompileSdkVersion
@@ -9,6 +11,8 @@ android {
     minSdkVersion androidMinSdkVersion
     targetSdkVersion androidTargetSdkVersion
 
+    vectorDrawables.useSupportLibrary = true
+
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -18,12 +22,17 @@ android {
   }
 }
 
+androidExtensions {
+  experimental = true
+}
+
 dependencies {
   implementation project(':flow')
+  implementation project(':flow-sample-common')
 
-  implementation "androidx.appcompat:appcompat:$androidAppcompatVersion"
-  implementation "com.google.android.material:material:$androidMaterialVersion"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 
+  androidTestImplementation "androidx.test:core:$androidTestVersion"
   androidTestImplementation "androidx.test:runner:$androidTestVersion"
   androidTestImplementation "androidx.test:rules:$androidTestVersion"
   androidTestImplementation "androidx.test.espresso:espresso-core:$androidEspressoVersion"

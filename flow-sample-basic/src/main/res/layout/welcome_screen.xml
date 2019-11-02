@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2016 Square Inc.
   ~
@@ -14,23 +13,23 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <flow.sample.basic.WelcomeView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
->
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:gravity="center"
+  android:orientation="vertical">
+
   <com.google.android.material.textfield.TextInputLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+      android:id="@+id/welcomeScreenName"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-  >
-    <EditText
-        android:id="@+id/welcome_screen_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Hello, what's your name?"
-        />
+      android:hint="Hello, what's your name?" />
+
   </com.google.android.material.textfield.TextInputLayout>
+
 </flow.sample.basic.WelcomeView>

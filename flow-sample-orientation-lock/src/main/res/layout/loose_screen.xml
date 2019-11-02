@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2016 Square Inc.
   ~
@@ -16,19 +15,19 @@
   -->
 
 <flow.sample.orientation.LooseView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:gravity="center"
+  android:orientation="vertical">
+
+  <TextView
+    android:id="@+id/loose_text"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical"
-    >
-  <TextView
-      android:id="@+id/loose_text"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:text="I'm happy either way. Tap to see the strictly landscape screen."
-      android:gravity="center"
-      tools:ignore="HardcodedText"
-      />
+    android:text="I'm happy either way. Tap to see the strictly landscape screen."
+    tools:ignore="HardcodedText" />
+
 </flow.sample.orientation.LooseView>

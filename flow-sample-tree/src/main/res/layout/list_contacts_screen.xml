@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2016 Square Inc.
   ~
@@ -16,9 +15,8 @@
   -->
 
 <flow.sample.tree.ui.contacts.list.ListContactsView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/list_contacts_screen"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    />
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/list_contacts_screen"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical" />
