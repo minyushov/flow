@@ -9,7 +9,7 @@ interface FlowModelUser {
     internal val scopes: Set<Class<*>>
       get() = relations.keys
 
-    internal val tags: Collection<String>
-      get() = relations.values
+    internal fun tag(scope: FlowModelScope): String? =
+      relations.get(scope::class.java)
   }
 }

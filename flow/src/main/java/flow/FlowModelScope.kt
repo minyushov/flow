@@ -9,11 +9,13 @@ abstract class FlowModelScope {
 
   // tag to model relations
   private val models = LinkedHashMap<String, Any>()
+
   // tag to users relations
   private val users = LinkedHashMap<String, ArrayList<FlowModelUser>>()
 
   internal fun setUp(user: FlowModelUser) {
-    for (tag in user.relations.tags) {
+    val tag = user.relations.tag(this)
+    if (tag != null) {
       val model = models[tag]
 
       if (model == null) {
@@ -26,8 +28,9 @@ abstract class FlowModelScope {
   }
 
   internal fun tearDown(user: FlowModelUser) {
-    for (tag in user.relations.tags) {
-      val modelUsers = users[tag] ?: continue
+    val tag = user.relations.tag(this)
+    if (tag != null) {
+      val modelUsers = users[tag] ?: return
 
       modelUsers.remove(user)
 
