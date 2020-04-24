@@ -1,7 +1,7 @@
 buildscript {
   ext {
     javaVersion = JavaVersion.VERSION_1_8
-    kotlinVersion = "1.3.50"
+    kotlinVersion = "1.3.72"
 
     androidMinSdkVersion = 17
     androidCompileSdkVersion = 29
@@ -10,10 +10,10 @@ buildscript {
     androidAppcompatVersion = "1.1.0"
     androidMaterialVersion = "1.0.0"
     androidTestVersion = "1.2.0"
-    androidAnnotationVersion = "1.0.2"
+    androidAnnotationVersion = "1.1.0"
     androidEspressoVersion = "3.1.1"
 
-    junitVersion = "4.12"
+    junitVersion = "4.13"
     assertjVersion = "3.10.0"
     mockitoVersion = "2.23.0"
   }
@@ -24,8 +24,8 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:3.6.0-beta02"
-    classpath "com.minyushov.gradle:bintray:1.3.0-rc02"
+    classpath "com.android.tools.build:gradle:4.0.0-beta05"
+    classpath "com.minyushov.gradle:bintray:2.0.0-alpha05"
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion"
   }

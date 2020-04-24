@@ -38,12 +38,12 @@ dependencies {
   testImplementation "org.mockito:mockito-core:$mockitoVersion"
 }
 
-bintrayUpload {
+bintray {
   dryRun = false
   artifactId = "flow"
   repo = "android"
   groupId = "com.minyushov.android"
-  version = "1.0.7"
+  version = "2.0.0-alpha01"
   vcsUrl = "https://github.com/minyushov/flow.git"
   license = "Apache-2.0"
   docs = false
