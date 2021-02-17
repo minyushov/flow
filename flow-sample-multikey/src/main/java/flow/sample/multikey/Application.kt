@@ -35,7 +35,7 @@ inline fun Application.registerActivityLifecycleCallbacks(
     override fun onActivityStopped(activity: Activity) =
       onActivityStopped.invoke(activity)
 
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle?) =
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) =
       onActivitySaveInstanceState.invoke(activity, outState)
 
     override fun onActivityDestroyed(activity: Activity) =

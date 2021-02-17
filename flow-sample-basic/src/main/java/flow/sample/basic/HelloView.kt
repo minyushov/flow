@@ -18,11 +18,10 @@ package flow.sample.basic
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import flow.getFlowKey
-import kotlinx.android.synthetic.main.hello_screen.view.helloCounter
-import kotlinx.android.synthetic.main.hello_screen.view.helloIncrement
-import kotlinx.android.synthetic.main.hello_screen.view.helloName
 
 class HelloView
 @JvmOverloads
@@ -44,12 +43,12 @@ constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    val screen = getFlowKey<HelloScreen>()
-    helloName.text = "Hello ${screen?.name}"
+    findViewById<TextView>(R.id.helloName).text = "Hello ${getFlowKey<HelloScreen>()?.name}"
 
-    helloIncrement.setOnClickListener {
-      val current = helloCounter.text.toString().toIntOrNull() ?: 0
-      helloCounter.text = (current + 1).toString()
+    val counterView = findViewById<TextView>(R.id.helloCounter)
+    findViewById<View>(R.id.helloIncrement).setOnClickListener {
+      val current = counterView.text.toString().toIntOrNull() ?: 0
+      counterView.text = (current + 1).toString()
     }
   }
 }

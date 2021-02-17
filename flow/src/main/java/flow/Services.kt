@@ -16,8 +16,6 @@
 
 package flow
 
-import java.util.LinkedHashMap
-
 open class Services
 private constructor(
   private val key: Any,
@@ -49,11 +47,13 @@ private constructor(
 
   fun <T> getService(name: String): T? {
     return if (services.containsKey(name)) {
+      @Suppress("UNCHECKED_CAST")
       services[name] as T?
     } else delegate?.getService<T>(name)
   }
 
   fun <T> getKey(): T {
+    @Suppress("UNCHECKED_CAST")
     return this.key as T
   }
 

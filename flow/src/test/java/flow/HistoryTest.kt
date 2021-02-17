@@ -109,7 +109,7 @@ class HistoryTest {
     assertThat(iterator.next()).isSameAs(ABLE)
     assertThat(iterator.next()).isSameAs(BAKER)
     assertThat(iterator.next()).isSameAs(CHARLIE)
-    assertThat(iterator.hasNext()).isFalse()
+    assertThat(iterator.hasNext()).isFalse
   }
 
   @Test
@@ -121,7 +121,7 @@ class HistoryTest {
     assertThat(iterator.next()).isSameAs(CHARLIE)
     assertThat(iterator.next()).isSameAs(BAKER)
     assertThat(iterator.next()).isSameAs(ABLE)
-    assertThat(iterator.hasNext()).isFalse()
+    assertThat(iterator.hasNext()).isFalse
   }
 
   @Test
@@ -155,11 +155,11 @@ class HistoryTest {
   fun isEmpty() {
     try {
       history {
-        assertThat(isEmpty).isTrue()
+        assertThat(isEmpty).isTrue
         push("foo")
-        assertThat(isEmpty).isFalse()
+        assertThat(isEmpty).isFalse
         pop()
-        assertThat(isEmpty).isTrue()
+        assertThat(isEmpty).isTrue
       }
     } catch (exception: IllegalArgumentException) {
       // pass

@@ -23,10 +23,9 @@ dependencies {
   implementation project(':flow')
   implementation project(':flow-sample-common')
 
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-  implementation "androidx.core:core-ktx:1.1.0"
+  implementation "androidx.core:core-ktx:1.3.2"
 
   androidTestImplementation "androidx.test:runner:$androidTestVersion"
-  androidTestImplementation "androidx.test:rules:$androidTestVersion"
   androidTestImplementation "androidx.test.espresso:espresso-core:$androidEspressoVersion"
+  androidTestImplementation "androidx.test.ext:junit-ktx:$androidJunitExtensionsVersion"
 }

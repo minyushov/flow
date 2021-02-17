@@ -1,10 +1,5 @@
 package flow.sample.basic
 
-import android.content.Context
-import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-import android.content.res.Configuration.ORIENTATION_PORTRAIT
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions
@@ -14,7 +9,9 @@ import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.rule.ActivityTestRule
+import androidx.test.ext.junit.rules.activityScenarioRule
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import org.junit.Rule
 import org.junit.Test
 
@@ -26,7 +23,7 @@ class BasicSampleTest {
 
   @Rule
   @JvmField
-  val rule = ActivityTestRule(BasicSampleActivity::class.java)
+  val rule = activityScenarioRule<BasicSampleActivity>()
 
   /** Verifies that the app is in its default state on a cold start.  */
   @Test
@@ -46,7 +43,8 @@ class BasicSampleTest {
     onView(withId(R.id.welcomeScreenName))
       .perform(ViewActions.typeText("Bart"))
 
-    rotate()
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    device.setOrientationLeft()
 
     // We should still have that text, despite the configuration change.
     onView(withId(R.id.welcomeScreenName))
@@ -66,7 +64,7 @@ class BasicSampleTest {
     onView(withId(R.id.helloCounter))
       .check(matches(withText("2")))
 
-    rotate()
+    device.setOrientationNatural()
 
     // Verify that we still have our Flow state object.
     onView(withId(R.id.helloName))
@@ -95,13 +93,5 @@ class BasicSampleTest {
     // When we navigated back, the view state of the name field should have been restored.
     onView(withId(R.id.welcomeScreenName))
       .check(matches(withText("Bart")))
-  }
-
-  private fun rotate() {
-    val config = ApplicationProvider.getApplicationContext<Context>().resources.configuration
-    rule.activity.requestedOrientation = if (config.orientation == ORIENTATION_PORTRAIT)
-      SCREEN_ORIENTATION_LANDSCAPE
-    else
-      SCREEN_ORIENTATION_PORTRAIT
   }
 }

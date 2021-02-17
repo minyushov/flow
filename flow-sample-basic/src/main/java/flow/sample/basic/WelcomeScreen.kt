@@ -18,7 +18,7 @@ package flow.sample.basic
 
 import android.os.Parcelable
 import flow.ClassKey
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class WelcomeScreen : Parcelable, ClassKey()

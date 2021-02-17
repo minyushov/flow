@@ -1,6 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'com.minyushov.bintray'
+
+if (gradle.startParameter.taskNames.find { it.contains("test") || it.contains("Test") } != null) {
+  apply plugin: 'kotlin-allopen'
+  allOpen {
+    annotation('flow.Mockable')
+  }
+}
 
 android {
   compileSdkVersion androidCompileSdkVersion
@@ -10,18 +16,6 @@ android {
     targetSdkVersion androidTargetSdkVersion
   }
 
-  libraryVariants.all { variant ->
-    variant.generateBuildConfigProvider.configure {
-      it.enabled = false
-    }
-    if (gradle.startParameter.taskNames.find { it.contains("test") || it.contains("Test") } != null) {
-      apply plugin: 'kotlin-allopen'
-      allOpen {
-        annotation('flow.Mockable')
-      }
-    }
-  }
-
   compileOptions {
     sourceCompatibility javaVersion
     targetCompatibility javaVersion
@@ -29,7 +23,6 @@ android {
 }
 
 dependencies {
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
   compileOnly "androidx.annotation:annotation:$androidAnnotationVersion"
 
   testCompileOnly "androidx.annotation:annotation:$androidAnnotationVersion"
@@ -38,13 +31,13 @@ dependencies {
   testImplementation "org.mockito:mockito-core:$mockitoVersion"
 }
 
-bintray {
-  dryRun = false
-  artifactId = "flow"
-  repo = "android"
-  groupId = "com.minyushov.android"
-  version = "2.0.0-alpha01"
-  vcsUrl = "https://github.com/minyushov/flow.git"
-  license = "Apache-2.0"
-  docs = false
-}
+// bintray {
+//   dryRun = false
+//   artifactId = "flow"
+//   repo = "android"
+//   groupId = "com.minyushov.android"
+//   version = "2.0.0-alpha01"
+//   vcsUrl = "https://github.com/minyushov/flow.git"
+//   license = "Apache-2.0"
+//   docs = false
+// }

@@ -14,7 +14,6 @@ import org.junit.Test
  * Demonstrates the use of Intents to drive espresso tests to specific screens.
  */
 class IntentsSampleTest {
-
   @Test
   fun singleInstanceActivity() {
     val history = historyOf("Able", "Baker", "Charlie")
@@ -46,5 +45,4 @@ class IntentsSampleTest {
     onView(withText("Piggledy")).perform(pressBack())
     onView(withText("Higgledy")).perform(click())
   }
-
 }

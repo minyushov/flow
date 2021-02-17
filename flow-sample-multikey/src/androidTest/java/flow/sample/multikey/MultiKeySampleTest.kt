@@ -16,12 +16,7 @@
 
 package flow.sample.multikey
 
-import android.content.Context
-import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.view.View
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
@@ -30,8 +25,11 @@ import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.rule.ActivityTestRule
+import androidx.test.ext.junit.rules.activityScenarioRule
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import org.hamcrest.Matchers.`is`
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -39,7 +37,16 @@ class MultiKeySampleTest {
 
   @Rule
   @JvmField
-  val rule = ActivityTestRule(MultiKeySampleActivity::class.java)
+  val rule = activityScenarioRule<MultiKeySampleActivity>()
+
+  lateinit var decorView: View
+
+  @Before
+  fun setUp() {
+    rule.scenario.onActivity { activity ->
+      decorView = activity.window.decorView;
+    }
+  }
 
   @Test
   fun walkthrough() {
@@ -54,17 +61,17 @@ class MultiKeySampleTest {
 
     // We should still see ScreenOne behind the dialog.
     onView(withText(ScreenOne().toString()))
-      .inRoot(withDecorView(`is`<View>(rule.activity.window.decorView)))
+      .inRoot(withDecorView(`is`(decorView)))
 
     // Let's rotate to make sure we keep the dialog and the view.
-    rotate()
+    UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).setOrientationRight()
 
     // Should still see DialogScreen.
     onView(withText(DialogScreen(ScreenTwo()).toString()))
       .inRoot(isDialog())
       .check(matches(isDisplayed()))
     onView(withText(ScreenOne().toString()))
-      .inRoot(withDecorView(`is`<View>(rule.activity.window.decorView)))
+      .inRoot(withDecorView(`is`(decorView)))
 
     // Click Yes on dialog to advance to ScreenTwo.
     onView(withText("Yes")).inRoot(isDialog()).perform(click())
@@ -80,7 +87,7 @@ class MultiKeySampleTest {
       .inRoot(isDialog())
       .check(matches(isDisplayed()))
     onView(withText(ScreenOne().toString()))
-      .inRoot(withDecorView(`is`<View>(rule.activity.window.decorView)))
+      .inRoot(withDecorView(`is`(decorView)))
 
     // Click forward to ScreenTwo
     // Click Yes on dialog to advance to ScreenTwo.
@@ -89,13 +96,5 @@ class MultiKeySampleTest {
     // Click screen to go back to ScreenOne, skipping the dialog.
     onView(withText(ScreenTwo().toString())).perform(click())
     onView(withText(ScreenOne().toString())).check(matches(isDisplayed()))
-  }
-
-  private fun rotate() {
-    val config = ApplicationProvider.getApplicationContext<Context>().resources.configuration
-    rule.activity.requestedOrientation = if (config.orientation == ORIENTATION_PORTRAIT)
-      SCREEN_ORIENTATION_LANDSCAPE
-    else
-      SCREEN_ORIENTATION_PORTRAIT
   }
 }

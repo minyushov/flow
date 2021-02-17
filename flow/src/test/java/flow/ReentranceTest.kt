@@ -16,32 +16,40 @@
 
 package flow
 
+import flow.Direction.FORWARD
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Fail.fail
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
+import org.mockito.MockitoAnnotations.openMocks
 import java.util.ArrayList
 import java.util.LinkedList
 import java.util.concurrent.atomic.AtomicInteger
 
-import flow.Direction.FORWARD
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Fail.fail
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations.initMocks
-
 class ReentranceTest {
+  private var mocksClosable: AutoCloseable? = null
+
   @Mock
   private lateinit var keyManager: KeyManager
+
   @Mock
   private lateinit var modelManager: FlowModelManager
+
   @Mock
   private lateinit var historyCallback: HistoryCallback
 
   @Before
   fun setUp() {
-    initMocks(this)
+    mocksClosable = openMocks(this)
+  }
+
+  @After
+  fun shutDown() {
+    mocksClosable?.close()
   }
 
   @Test
@@ -142,7 +150,7 @@ class ReentranceTest {
     flow.set(Error())
 
     flow.goBack()
-    verify<HistoryCallback>(historyCallback, never()).onHistoryCleared()
+    verify(historyCallback, never()).onHistoryCleared()
 
     while (!callbacks.isEmpty()) {
       callbacks.poll()?.onTraversalCompleted()
@@ -169,7 +177,7 @@ class ReentranceTest {
 
     for (i in 0..19) {
       flow.goBack()
-      verify<HistoryCallback>(historyCallback, never()).onHistoryCleared()
+      verify(historyCallback, never()).onHistoryCleared()
     }
 
     var callbackCount = 0
@@ -229,7 +237,7 @@ class ReentranceTest {
       return
     }
 
-    fail("Second call to onComplete() should have thrown.")
+    fail<Nothing>("Second call to onComplete() should have thrown.")
   }
 
   @Test

@@ -23,9 +23,7 @@ dependencies {
   implementation project(':flow')
   implementation project(':flow-sample-common')
 
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-
   androidTestImplementation "androidx.test:runner:$androidTestVersion"
-  androidTestImplementation "androidx.test:rules:$androidTestVersion"
   androidTestImplementation "androidx.test.espresso:espresso-core:$androidEspressoVersion"
+  androidTestImplementation "androidx.test.ext:junit-ktx:$androidJunitExtensionsVersion"
 }

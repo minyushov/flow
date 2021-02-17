@@ -18,6 +18,7 @@ package flow
 import android.content.Context
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -25,9 +26,11 @@ import org.mockito.Mockito
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations.initMocks
+import org.mockito.MockitoAnnotations.openMocks
 
 class FlowTest {
+
+  private var mocksClosable: AutoCloseable? = null
 
   private val able = TestKey("Able")
   private val baker = TestKey("Baker")
@@ -37,8 +40,10 @@ class FlowTest {
 
   @Mock
   private lateinit var keyManager: KeyManager
+
   @Mock
   private lateinit var modelManager: FlowModelManager
+
   @Mock
   private lateinit var historyCallback: HistoryCallback
 
@@ -90,7 +95,12 @@ class FlowTest {
 
   @Before
   fun setUp() {
-    initMocks(this)
+    mocksClosable = openMocks(this)
+  }
+
+  @After
+  fun shutDown() {
+    mocksClosable?.close()
   }
 
   @Test
@@ -285,7 +295,7 @@ class FlowTest {
 
     val top = lastStack.top<Any>()
     assertThat(top).isEqualTo(TestKey("Able"))
-    assertThat(top === able).isTrue()
+    assertThat(top === able).isTrue
     assertThat(top).isSameAs(able)
     assertThat(lastStack.size()).isEqualTo(1)
     assertThat(lastDirection).isEqualTo(Direction.BACKWARD)
@@ -302,7 +312,7 @@ class FlowTest {
 
     val top = lastStack.top<Any>()
     assertThat(top).isEqualTo(TestKey("Delta"))
-    assertThat(top === delta).isTrue()
+    assertThat(top === delta).isTrue
     assertThat(top).isSameAs(delta)
     assertThat(lastStack.size()).isEqualTo(1)
     assertThat(lastDirection).isEqualTo(Direction.REPLACE)
@@ -319,7 +329,7 @@ class FlowTest {
 
     val top = lastStack.top<Any>()
     assertThat(top).isEqualTo(TestKey("Delta"))
-    assertThat(top === delta).isTrue()
+    assertThat(top === delta).isTrue
     assertThat(top).isSameAs(delta)
     assertThat(lastStack.size()).isEqualTo(3)
     assertThat(lastDirection).isEqualTo(Direction.REPLACE)

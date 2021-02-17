@@ -1,18 +1,16 @@
 package flow.sample.helloworld
 
-import org.junit.Rule
-import org.junit.Test
-
-import androidx.test.rule.ActivityTestRule
-
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.rules.activityScenarioRule
+import org.junit.Rule
+import org.junit.Test
 
 class HelloTest {
   @Rule
   @JvmField
-  val rule = ActivityTestRule(HelloWorldActivity::class.java)
+  val rule = activityScenarioRule<HelloWorldActivity>()
 
   @Test
   fun hello() {

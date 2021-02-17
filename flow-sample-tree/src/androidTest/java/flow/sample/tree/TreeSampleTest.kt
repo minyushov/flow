@@ -25,7 +25,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.rule.ActivityTestRule
+import androidx.test.ext.junit.rules.activityScenarioRule
 import flow.sample.tree.model.CONTACT_HOMER
 import flow.sample.tree.model.Contact
 import flow.sample.tree.ui.welcome.WelcomeScreen
@@ -38,7 +38,7 @@ class TreeSampleTest {
 
   @Rule
   @JvmField
-  val rule = ActivityTestRule(TreeSampleActivity::class.java)
+  val rule = activityScenarioRule<TreeSampleActivity>()
 
   @Test
   fun editsAreSaved() {
