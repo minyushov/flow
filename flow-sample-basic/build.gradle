@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
 
 android {
   compileSdkVersion androidCompileSdkVersion
@@ -8,6 +10,8 @@ android {
 
     minSdkVersion androidMinSdkVersion
     targetSdkVersion androidTargetSdkVersion
+
+    vectorDrawables.useSupportLibrary = true
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -20,11 +24,11 @@ android {
 
 dependencies {
   implementation project(':flow')
+  implementation project(':flow-sample-common')
 
-  implementation "androidx.appcompat:appcompat:$androidAppcompatVersion"
-  implementation "com.google.android.material:material:$androidMaterialVersion"
-
+  androidTestImplementation "androidx.test:core:$androidTestVersion"
   androidTestImplementation "androidx.test:runner:$androidTestVersion"
-  androidTestImplementation "androidx.test:rules:$androidTestVersion"
   androidTestImplementation "androidx.test.espresso:espresso-core:$androidEspressoVersion"
+  androidTestImplementation "androidx.test.ext:junit-ktx:$androidJunitExtensionsVersion"
+  androidTestImplementation "androidx.test.uiautomator:uiautomator:$androidUiAutomatorVersion"
 }

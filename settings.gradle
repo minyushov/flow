@@ -1,4 +1,5 @@
 include ':flow'
+include ':flow-sample-common'
 include ':flow-sample-helloworld'
 include ':flow-sample-intents'
 include ':flow-sample-basic'

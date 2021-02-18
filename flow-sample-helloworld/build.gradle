@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
   compileSdkVersion androidCompileSdkVersion
@@ -20,10 +21,9 @@ android {
 
 dependencies {
   implementation project(':flow')
-
-  implementation "androidx.appcompat:appcompat:$androidAppcompatVersion"
+  implementation project(':flow-sample-common')
 
   androidTestImplementation "androidx.test:runner:$androidTestVersion"
-  androidTestImplementation "androidx.test:rules:$androidTestVersion"
   androidTestImplementation "androidx.test.espresso:espresso-core:$androidEspressoVersion"
+  androidTestImplementation "androidx.test.ext:junit-ktx:$androidJunitExtensionsVersion"
 }
