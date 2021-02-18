@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 if (gradle.startParameter.taskNames.find { it.contains("test") || it.contains("Test") } != null) {
   apply plugin: 'kotlin-allopen'
@@ -31,13 +33,73 @@ dependencies {
   testImplementation "org.mockito:mockito-core:$mockitoVersion"
 }
 
-// bintray {
-//   dryRun = false
-//   artifactId = "flow"
-//   repo = "android"
-//   groupId = "com.minyushov.android"
-//   version = "2.0.0-alpha01"
-//   vcsUrl = "https://github.com/minyushov/flow.git"
-//   license = "Apache-2.0"
-//   docs = false
-// }
+tasks.register("sourcesJar", Jar) {
+  archiveClassifier = "sources"
+  from(android.sourceSets.main.java.srcDirs)
+}
+
+afterEvaluate {
+  def properties = new Properties()
+  def file = rootProject.file("local.properties")
+  if (file.isFile()) {
+    file.withInputStream { stream ->
+      properties.load(stream)
+    }
+  }
+
+  publishing {
+    publications {
+      maven(MavenPublication) {
+        groupId "io.github.minyushov"
+        artifactId = "flow"
+        version = "2.0.0"
+
+        from(components.findByName("release"))
+        artifact(tasks.named("sourcesJar"))
+
+        pom {
+          name = artifactId
+          description = "Flow gives names to your Activity's UI states, navigates between them, and remembers where it's been."
+          url = "https://github.com/minyushov/flow"
+          developers {
+            developer {
+              id = "minyushov"
+              name = "Semyon Minyushov"
+              email = "minyushov@gmail.com"
+            }
+          }
+          licenses {
+            license {
+              name = "Apache-2.0"
+              url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+          }
+          scm {
+            connection = "https://github.com/minyushov/flow.git"
+            developerConnection = "https://github.com/minyushov/flow.git"
+            url = "https://github.com/minyushov/flow/tree/master"
+          }
+        }
+      }
+    }
+    repositories {
+      maven {
+        name "sonatype"
+        url "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+        credentials {
+          username properties["SONATYPE_USER"]
+          password properties["SONATYPE_PASSWORD"]
+        }
+      }
+    }
+  }
+
+  signing {
+    useInMemoryPgpKeys(
+      properties["GPG_KEY_ID"],
+      properties["GPG_KEY"],
+      properties["GPG_PASSWORD"]
+    )
+    sign(publishing.publications)
+  }
+}
