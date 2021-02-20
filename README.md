@@ -1,4 +1,5 @@
 # Flow
+![Maven Central](https://img.shields.io/maven-central/v/io.github.minyushov/flow)
 
 _"Name-giving will be the foundation of our science."_ &mdash; Linnaeus
 
@@ -24,7 +25,7 @@ Manage all types of UIs-- complex master-detail views, multiple layers, and wind
 Gradle:
 
 ```groovy
-compile 'com.squareup.flow:flow:1.0.0-alpha3'
+compile 'com.squareup.flow:flow:$version'
 ```
 
 Install Flow into your Activity:
